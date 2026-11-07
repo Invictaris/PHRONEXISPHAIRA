@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHRONEXISPHAIRA — Personal Financial Command Center</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            400: '#818cf8',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbars & Smooth Transitions */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.25);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.4);
+        }
+        .glass-card {
+            backdrop-filter: blur(12px);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tab-btn.active {
+            background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(99, 102, 241, 0.35);
+        }
+        @keyframes pulseSubtle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.65; }
+        }
+        .pulse-badge {
+            animation: pulseSubtle 2.2s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-sans min-h-screen selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+    <!-- Top Navigation Bar -->
+    <header class="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800/80 bg-white/85 dark:bg-slate-900/85 glass-card">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 flex items-center justify-center text-white shadow-lg shadow-indigo-500/25">
+                    <i class="fa-solid fa-brain text-lg"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-bold text-base sm:text-lg tracking-tight">PHRONEXISPHAIRA</h1>
+                            <span class="hidden sm:inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Demo data
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Autonomous Budget, Credit Optimizer & Balance Sheet Engine</p>
+                </div>
+            </div>
+
+            <!-- Navigation Pills (Desktop) -->
+            <nav class="hidden md:flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/70 border border-slate-200/70 dark:border-slate-700/60" role="tablist">
+                <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-bolt"></i> Command Center
+                    <span id="nav-alert-count" class="px-1.5 py-0.2 rounded-full text-[11px] bg-white/20 text-white font-mono">4</span>
+                </button>
+                <button onclick="switchTab('cards')" id="tab-cards" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-credit-card"></i> Card & Spend Optimizer
+                </button>
+                <button onclick="switchTab('subscriptions')" id="tab-subscriptions" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Subscriptions & EMIs
+                </button>
+                <button onclick="switchTab('balancesheet')" id="tab-balancesheet" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced"></i> Balance Sheet
+                </button>
+                <button onclick="switchTab('planning')" id="tab-planning" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-list-check"></i> Planning Hub
+                </button>
+            </nav>
+
+            <!-- Action Controls -->
+            <div class="flex items-center gap-2">
+                <button onclick="openExpenseModal()" class="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs sm:text-sm font-medium shadow-md shadow-indigo-500/20 flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-plus"></i> <span class="hidden sm:inline">Log Spend</span>
+                </button>
+                <button onclick="toggleTheme()" class="p-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition" title="Toggle Dark/Light Theme">
+                    <i id="theme-icon" class="fa-solid fa-moon text-sm"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="flex md:hidden overflow-x-auto px-4 py-2 gap-1.5 border-t border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
+            <button onclick="switchTab('overview')" id="mob-tab-overview" class="tab-btn active px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap flex items-center gap-1.5">
+                <i class="fa-solid fa-bolt"></i> Command
+            </button>
+            <button onclick="switchTab('cards')" id="mob-tab-cards" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-credit-card"></i> Cards & Routing
+            </button>
+            <button onclick="switchTab('subscriptions')" id="mob-tab-subscriptions" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-rotate"></i> Subs & EMIs
+            </button>
+            <button onclick="switchTab('balancesheet')" id="mob-tab-balancesheet" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-scale-balanced"></i> Net Worth
+            </button>
+            <button onclick="switchTab('planning')" id="mob-tab-planning" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
+                <i class="fa-solid fa-list-check"></i> Planning
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <aside class="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-sm" role="note">
+            <strong>Prototype with synthetic sample data.</strong>
+            <span class="text-slate-600 dark:text-slate-300">Figures, cards, transactions, and planning assumptions are illustrative. Nothing is connected to your accounts. Verify statements, card terms, and current tax rules before acting.</span>
+        </aside>
+
+        <!-- TOP KPI PULSE STRIP (Always Visible Across Modules) -->
+        <section class="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4">
+            <!-- KPI 1: Net Worth -->
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Net Worth</span>
+                    <span class="text-emerald-500 font-medium"><i class="fa-solid fa-arrow-trend-up mr-1"></i>+14.2% YoY</span>
+                </div>
+                <div id="kpi-networth" class="text-lg sm:text-2xl font-bold font-mono tracking-tight">₹16,35,000</div>
+                <div id="kpi-networth-sub" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Assets ₹19.2L • Debt ₹2.85L</div>
+            </div>
+
+            <!-- KPI 2: Monthly Investable Surplus -->
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Monthly Surplus</span>
+                    <span id="kpi-savings-rate" class="px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-mono font-medium">46.5%</span>
+                </div>
+                <div id="kpi-surplus" class="text-lg sm:text-2xl font-bold font-mono tracking-tight text-indigo-600 dark:text-indigo-400">₹74,400</div>
+                <div id="kpi-inflow-outflow" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">In: ₹1.60L • Out: ₹85.6k</div>
+            </div>
+
+            <!-- KPI 3: Credit Utilization & Score -->
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Credit Utilization</span>
+                    <span id="kpi-cibil-badge" class="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-mono font-medium">CIBIL 786</span>
+                </div>
+                <div class="flex items-baseline gap-2">
+                    <div id="kpi-utilization" class="text-lg sm:text-2xl font-bold font-mono tracking-tight">18.4%</div>
+                    <span id="kpi-util-status" class="text-[11px] text-amber-500 font-medium">1 Card >30%</span>
+                </div>
+                <div id="kpi-limit-sub" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Used ₹1.38L of ₹7.50L Limit</div>
+            </div>
+
+            <!-- KPI 4: Reward Yield & Optimization -->
+            <div class="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Est. Annual Rewards</span>
+                    <span id="kpi-reward-yield" class="text-emerald-500 font-mono font-medium">4.8% Yield</span>
+                </div>
+                <div id="kpi-rewards-val" class="text-lg sm:text-2xl font-bold font-mono tracking-tight text-emerald-600 dark:text-emerald-400">₹34,680</div>
+                <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Cashback + Air Miles Value</div>
+            </div>
+
+            <!-- KPI 5: Emergency Runway -->
+            <div class="col-span-2 lg:col-span-1 p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                <div class="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-1">
+                    <span>Liquid Runway</span>
+                    <span id="kpi-runway-status" class="text-emerald-500 font-medium">Safe (>6m)</span>
+                </div>
+                <div id="kpi-runway" class="text-lg sm:text-2xl font-bold font-mono tracking-tight">6.4 Mos</div>
+                <div id="kpi-liquid-sub" class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">₹3.50L Liquid / ₹54.5k Fixed</div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MODULE 1: COMMAND CENTER & AGENT ALERTS    -->
+        <!-- ========================================== -->
+        <section id="view-overview" class="space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left 7 Cols: Autonomous Financial Agent Alerts & Recommendations -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-4 mb-4 border-b border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-8 h-8 rounded-lg bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
+                                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                                </span>
+                                <div>
+                                    <h2 class="font-semibold text-base">Active Agent Recommendations & Alerts</h2>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">Real-time triggers across statement cycles, leaks, and portfolio drag</p>
+                                </div>
+                            </div>
+                            <span id="active-alerts-pill" class="text-xs font-mono px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                                4 Actionable Items
+                            </span>
+                        </div>
+
+                        <!-- Dynamic Alerts Container -->
+                        <div id="agent-alerts-list" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Cash Flow Allocation Engine -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                            <div>
+                                <h2 class="font-semibold text-base">Monthly Cash Flow & Burn Architecture</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Adjust monthly net inflow or inspect automated 50/30/20 guardrails</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-xs text-slate-500 dark:text-slate-400">Monthly Inflow (₹):</label>
+                                <input type="number" id="monthly-income-input" value="160000" step="5000" onchange="updateIncome(this.value)"
+                                    class="w-28 px-2.5 py-1 rounded-lg text-sm font-mono bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 focus:outline-none focus:border-indigo-500">
+                            </div>
+                        </div>
+
+                        <!-- Stacked Horizontal Flow Bar -->
+                        <div class="mb-4">
+                            <div class="flex justify-between text-xs text-slate-500 dark:text-slate-400 mb-1.5">
+                                <span>Outflow vs. Surplus Distribution</span>
+                                <span id="flow-summary-label" class="font-mono">₹85,600 Spent / ₹74,400 Surplus</span>
+                            </div>
+                            <div id="cashflow-bar" class="w-full h-4 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden flex gap-0.5 p-0.5">
+                                <!-- Segments injected by JS -->
+                            </div>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                    <span class="text-slate-500 dark:text-slate-400">Fixed & EMIs:</span>
+                                    <span id="flow-fixed-val" class="font-mono font-medium">₹46,500</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span>
+                                    <span class="text-slate-500 dark:text-slate-400">Subscriptions:</span>
+                                    <span id="flow-subs-val" class="font-mono font-medium">₹6,397</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                                    <span class="text-slate-500 dark:text-slate-400">Lifestyle:</span>
+                                    <span id="flow-var-val" class="font-mono font-medium">₹32,700</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                    <span class="text-slate-500 dark:text-slate-400">Surplus:</span>
+                                    <span id="flow-surplus-val" class="font-mono font-medium text-emerald-500">₹74,403</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Expense Stream & Routing Audit -->
+                        <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <div class="flex items-center justify-between mb-3">
+                                <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Recent Transactions & Card Routing Audit</h3>
+                                <button onclick="openExpenseModal()" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">+ Add Transaction</button>
+                            </div>
+                            <div id="recent-tx-list" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                                <!-- Populated by JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 5 Cols: Quick Spend Router + Credit Utilization Snapshot -->
+                <div class="lg:col-span-5 space-y-6">
+                    
+                    <!-- Mini Instant Card Router Widget -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-indigo-950 via-slate-900 to-slate-900 text-white border border-indigo-500/30 shadow-lg">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-compass"></i> Smart Spend Router
+                            </span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-400/20">MCC + Float Aware</span>
+                        </div>
+                        <h3 class="text-base font-semibold mb-1">Which card should I swipe right now?</h3>
+                        <p class="text-xs text-slate-300 mb-4">Maximizes reward yield while keeping per-card utilization under 30%.</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+                            <div>
+                                <label class="text-[11px] text-slate-300 block mb-1">Spend Category</label>
+                                <select id="quick-route-cat" onchange="runQuickRouter()" class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-400">
+                                    <option value="dining">Dining & Food Delivery (Swiggy/Zomato)</option>
+                                    <option value="utilities">Utilities, Broadband & Mobile Bills</option>
+                                    <option value="online">Online Shopping (Amazon/Flipkart)</option>
+                                    <option value="travel">Flights, Hotels & Travel</option>
+                                    <option value="upi">Scan & Pay Merchant UPI</option>
+                                    <option value="groceries">Groceries & Quick Commerce</option>
+                                    <option value="general">General / Offline POS Spend</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[11px] text-slate-300 block mb-1">Spend Amount (₹)</label>
+                                <input type="number" id="quick-route-amt" value="4500" step="500" oninput="runQuickRouter()"
+                                    class="w-full px-3 py-2 rounded-xl bg-slate-800/90 border border-slate-700 text-xs font-mono text-white focus:outline-none focus:border-indigo-400">
+                            </div>
+                        </div>
+
+                        <!-- Recommendation Result Card -->
+                        <div id="quick-route-result" class="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Per-Card Utilization & Statement Radar -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <h2 class="font-semibold text-base">Credit Card Utilization Radar</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">CIBIL Optimal Threshold: <span class="text-emerald-500 font-medium">&lt; 30% per card</span></p>
+                            </div>
+                            <button onclick="switchTab('cards')" class="text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium">Full Optimizer →</button>
+                        </div>
+
+                        <div id="overview-cards-bars" class="space-y-3.5 mt-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- 30-Day Statement, Auto-Debit & SIP Radar -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <h2 class="font-semibold text-base">30-Day Billing & Cashflow Radar</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Upcoming statement dates, EMI debits & renewal triggers</p>
+                            </div>
+                            <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-500 font-medium">Nov Cycle</span>
+                        </div>
+                        <div id="upcoming-calendar-list" class="space-y-2.5 mt-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MODULE 2: CREDIT CARD & SPEND OPTIMIZER    -->
+        <!-- ========================================== -->
+        <section id="view-cards" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left 8 Cols: Card Portfolio & Statement Cycle Matrix -->
+                <div class="lg:col-span-8 space-y-6">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                            <div>
+                                <h2 class="font-semibold text-base">Active Credit Card Portfolio & Cycle Optimizer</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Track statement dates for maximum interest-free float (up to 50 days) & manage utilization</p>
+                            </div>
+                            <span class="text-xs px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 font-mono">
+                                Today: 7 Nov • Billing Radar Active
+                            </span>
+                        </div>
+
+                        <div id="cards-detailed-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Reward Points Vault & Annual Fee Waiver Tracker -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                            <div>
+                                <h3 class="font-semibold text-base flex items-center gap-2">
+                                    <i class="fa-solid fa-gem text-indigo-500"></i> Reward Points Vault & Fee Waiver Milestones
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Convert accumulated points at highest partner valuation & track annual spend waivers</p>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-xs text-slate-400 block">Total Unredeemed Vault Value</span>
+                                <span id="vault-total-inr" class="text-sm font-bold font-mono text-emerald-500">₹28,420</span>
+                            </div>
+                        </div>
+                        <div id="rewards-vault-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Category-to-Card Master Routing Matrix -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-x-auto">
+                        <h3 class="font-semibold text-base mb-1">Category Reward Optimization Cheat-Sheet</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Always swipe the primary card below unless its current statement utilization exceeds 30%</p>
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-slate-200 dark:border-slate-800 text-slate-400 uppercase">
+                                    <th class="py-2.5 px-3">Spend Category</th>
+                                    <th class="py-2.5 px-3">Primary Card</th>
+                                    <th class="py-2.5 px-3">Effective Yield</th>
+                                    <th class="py-2.5 px-3">Backup Card</th>
+                                    <th class="py-2.5 px-3">Monthly Cap / Notes</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200/60 dark:divide-slate-800/70">
+                                <tr>
+                                    <td class="py-2.5 px-3 font-medium">Utilities, Broadband & Mobile</td>
+                                    <td class="py-2.5 px-3 text-indigo-600 dark:text-indigo-400 font-semibold">Airtel Axis Bank</td>
+                                    <td class="py-2.5 px-3 font-mono text-emerald-500 font-semibold">10% – 25%</td>
+                                    <td class="py-2.5 px-3">Tata Neu Infinity</td>
+                                    <td class="py-2.5 px-3 text-slate-500">₹250/mo cap per category via Airtel Thanks</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-3 font-medium">Dining & Food Delivery</td>
+                                    <td class="py-2.5 px-3 text-indigo-600 dark:text-indigo-400 font-semibold">Airtel Axis / HDFC Regalia</td>
+                                    <td class="py-2.5 px-3 font-mono text-emerald-500 font-semibold">10.0%</td>
+                                    <td class="py-2.5 px-3">SBI Cashback (5%)</td>
+                                    <td class="py-2.5 px-3 text-slate-500">10% on Swiggy/Zomato up to ₹500/mo</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-3 font-medium">Online Shopping (Amazon/Flipkart)</td>
+                                    <td class="py-2.5 px-3 text-indigo-600 dark:text-indigo-400 font-semibold">SBI Cashback Card</td>
+                                    <td class="py-2.5 px-3 font-mono text-emerald-500 font-semibold">5.0% Flat</td>
+                                    <td class="py-2.5 px-3">HDFC Regalia Gold</td>
+                                    <td class="py-2.5 px-3 text-slate-500">Auto-credited to statement; ₹5,000/mo cap</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-3 font-medium">Flights & Hotels (Direct)</td>
+                                    <td class="py-2.5 px-3 text-indigo-600 dark:text-indigo-400 font-semibold">Axis Atlas</td>
+                                    <td class="py-2.5 px-3 font-mono text-emerald-500 font-semibold">10.0% (5 EM/₹100)</td>
+                                    <td class="py-2.5 px-3">HDFC Regalia Gold</td>
+                                    <td class="py-2.5 px-3 text-slate-500">1 EDGE Mile = ₹2 partner airline/hotel value</td>
+                                </tr>
+                                <tr>
+                                    <td class="py-2.5 px-3 font-medium">Merchant UPI Scan & Pay</td>
+                                    <td class="py-2.5 px-3 text-indigo-600 dark:text-indigo-400 font-semibold">HDFC Regalia / RuPay</td>
+                                    <td class="py-2.5 px-3 font-mono text-emerald-500 font-semibold">1.5% Rewards</td>
+                                    <td class="py-2.5 px-3">Bank UPI (0%)</td>
+                                    <td class="py-2.5 px-3 text-slate-500">Saves savings-account clutter + 1.5% yield</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right 4 Cols: Credit Score Simulator & Limit Enhancement Engine -->
+                <div class="lg:col-span-4 space-y-6">
+                    <!-- Credit Score Simulator -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs font-semibold uppercase tracking-wider text-emerald-500">CIBIL Health Engine</span>
+                            <span class="text-xs font-mono text-slate-400">Experian / CIBIL</span>
+                        </div>
+                        <div class="flex items-center justify-between my-4 p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/50">
+                            <div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">Simulated Bureau Score</div>
+                                <div id="sim-cibil-score" class="text-3xl font-bold font-mono text-emerald-500 mt-0.5">786</div>
+                                <div id="sim-cibil-tier" class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">Excellent • Top 12% Bracket</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-slate-500 dark:text-slate-400">Peak Card Util.</div>
+                                <div id="sim-peak-util" class="text-xl font-bold font-mono text-amber-500 mt-0.5">44.0%</div>
+                                <div class="text-[11px] text-slate-400">Target &lt; 30%</div>
+                            </div>
+                        </div>
+
+                        <!-- Bureau Factor Weight Breakdown -->
+                        <div class="mb-5 space-y-2.5">
+                            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400">Bureau Score Factor Diagnostics</h4>
+                            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                                <div>
+                                    <div class="font-medium">On-Time Payment History (35%)</div>
+                                    <div class="text-[11px] text-slate-400">48/48 Months • Zero Defaults</div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-mono font-semibold">100%</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                                <div>
+                                    <div class="font-medium">Credit Utilization Ratio (30%)</div>
+                                    <div id="factor-util-desc" class="text-[11px] text-slate-400">Aggregate 18.4% • Peak Card 44%</div>
+                                </div>
+                                <span id="factor-util-badge" class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-mono font-semibold">Action Req</span>
+                            </div>
+                            <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                                <div>
+                                    <div class="font-medium">Credit Age & Mix (25%)</div>
+                                    <div class="text-[11px] text-slate-400">Avg Age 4.2 Yrs • Secured + Unsecured</div>
+                                </div>
+                                <span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-mono font-semibold">Strong</span>
+                            </div>
+                        </div>
+
+                        <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2.5">Credit Limit Enhancement Tracker</h4>
+                        <div id="limit-bump-list" class="space-y-2.5">
+                            <!-- Injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Statement Cycle Float Strategy Guide -->
+                    <div class="p-5 rounded-2xl bg-gradient-to-br from-slate-900 to-indigo-950 text-white border border-indigo-500/20 shadow-sm space-y-3">
+                        <div class="flex items-center gap-2 text-indigo-300 text-xs font-semibold uppercase tracking-wider">
+                            <i class="fa-solid fa-clock-rotate-left"></i> Float Optimization Rule
+                        </div>
+                        <h4 class="text-sm font-semibold">How to Unlock 48 Days Interest-Free Credit</h4>
+                        <p class="text-xs text-slate-300 leading-relaxed">
+                            Time high-ticket purchases <strong>1–2 days after</strong> a card's statement generation date. Since today is <strong>Nov 7</strong>, swipe <strong>HDFC Regalia Gold</strong> (billed 22nd) for immediate float, or wait until <strong>Nov 11</strong> to swipe <strong>Axis Atlas</strong> for a full 48-day interest-free cycle.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MODULE 3: SUBSCRIPTIONS, LEAKS & EMIs      -->
+        <!-- ========================================== -->
+        <section id="view-subscriptions" class="hidden space-y-6">
+            <!-- Recurring commitments ledger -->
+            <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div><h2 class="font-semibold text-base flex items-center gap-2"><i class="fa-solid fa-calendar-check text-indigo-500"></i> Recurring Commitments</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Separate living costs, insurance, debt payments, and investments. Demo rows only.</p></div>
+                    <button onclick="openCommitmentModal()" class="px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium"><i class="fa-solid fa-plus mr-1"></i>Add Commitment</button>
+                </div>
+                <div id="commitment-summary" class="grid grid-cols-2 md:grid-cols-4 gap-2"></div>
+                <div class="flex flex-wrap items-center gap-2"><label for="commitment-filter" class="text-xs text-slate-500">Show</label><select id="commitment-filter" onchange="renderCommitments()" class="px-2.5 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs"><option value="all">All commitments</option><option value="living">Living costs</option><option value="insurance">Insurance</option><option value="debt">Debt payments</option><option value="investment">Investments</option></select><span class="text-[11px] text-slate-400">Monthly equivalent normalizes frequency; investments are not consumption. Registry totals are separate from the cash-flow model until reconciled, to avoid double counting.</span></div>
+                <div id="commitment-table" class="overflow-x-auto"></div>
+            </section>
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left 7 Cols: Subscription Effectiveness & Cost-Per-Use Audit -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                            <div>
+                                <h2 class="font-semibold text-base">Recurring Subscriptions & Resource Allocation Audit</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Adjust monthly usage frequency or switch billing cards to capture higher auto-debit cashback</p>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div class="text-right">
+                                    <div id="subs-monthly-burn" class="text-sm font-bold font-mono text-purple-600 dark:text-purple-400">₹6,397 / mo</div>
+                                    <div id="subs-annual-burn" class="text-[11px] text-slate-400 font-mono">₹76,764 / yr</div>
+                                </div>
+                                <button onclick="openSubModal()" class="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-medium transition flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus"></i> Add Sub
+                                </button>
+                            </div>
+                        </div>
+
+                        <div id="subscriptions-list" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Auto-Debit Card Routing Audit -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <h3 class="font-semibold text-base mb-1">Standing Instructions (SI) & e-Mandate Hygiene</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Keep recurring mandates off primary bank accounts to avoid balance clutter and earn 5%–10% card rewards.</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+                                <div class="text-slate-400">Active e-Mandates</div>
+                                <div id="mandate-active-count" class="text-base font-bold font-mono mt-0.5">4 Mandates</div>
+                                <div class="text-[11px] text-emerald-500 mt-0.5">100% on Credit Cards</div>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+                                <div class="text-slate-400">Annual Leak Risk</div>
+                                <div id="mandate-leak-val" class="text-base font-bold font-mono text-rose-500 mt-0.5">₹50,400 / yr</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5">Subscriptions &gt; ₹500/use</div>
+                            </div>
+                            <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/60 dark:border-slate-800">
+                                <div class="text-slate-400">Cashback on Mandates</div>
+                                <div class="text-base font-bold font-mono text-indigo-500 mt-0.5">₹3,840 / yr</div>
+                                <div class="text-[11px] text-slate-400 mt-0.5">Via Airtel Axis & SBI CB</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 5 Cols: Active EMIs & Prepayment Acceleration Simulator -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="font-semibold text-base">Active EMIs & Debt Obligations</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Monthly Fixed Debt Outflow: <span class="font-mono font-semibold text-slate-700 dark:text-slate-200">₹18,500/mo</span></p>
+                            </div>
+                            <span class="text-xs font-mono px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">DTI: 11.5%</span>
+                        </div>
+
+                        <div id="emi-list" class="space-y-3 mb-5">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Interactive EMI Prepayment Calculator -->
+                        <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-calculator"></i> EMI Prepayment Optimizer
+                                </span>
+                                <span class="text-[11px] text-slate-400">Target: Vehicle Loan (8.9% APR)</span>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-xs mb-1">
+                                    <span class="text-slate-500 dark:text-slate-400">Extra Monthly Prepayment:</span>
+                                    <span id="prepay-slider-val" class="font-mono font-semibold text-emerald-500">+₹5,000 / mo</span>
+                                </div>
+                                <input type="range" id="prepay-slider" min="0" max="25000" step="1000" value="5000" oninput="updateEmiSimulator(this.value)"
+                                    class="w-full accent-indigo-600 cursor-pointer">
+                            </div>
+                            <div class="grid grid-cols-2 gap-3 pt-1">
+                                <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800">
+                                    <div class="text-[11px] text-slate-400">Interest Saved</div>
+                                    <div id="emi-interest-saved" class="text-sm font-bold font-mono text-emerald-500">₹14,820</div>
+                                </div>
+                                <div class="p-2.5 rounded-lg bg-white dark:bg-slate-900 border border-slate-200/70 dark:border-slate-800">
+                                    <div class="text-[11px] text-slate-400">Tenure Reduced By</div>
+                                    <div id="emi-months-saved" class="text-sm font-bold font-mono text-indigo-500">5.5 Months</div>
+                                </div>
+                            </div>
+                            <div class="text-[11px] text-slate-500 dark:text-slate-400 pt-1">
+                                <i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i>
+                                <strong>Agent Verdict:</strong> Since Nifty 50 SIP expected CAGR (12%) exceeds your 8.9% loan rate, split surplus 70% into Equity SIPs and 30% into loan prepayment.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- MODULE 4: BALANCE SHEET & NET WORTH        -->
+        <!-- ========================================== -->
+        <section id="view-balancesheet" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                
+                <!-- Left 7 Cols: Assets Ledger -->
+                <div class="lg:col-span-7 space-y-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                            <div>
+                                <h2 class="font-semibold text-base">Consolidated Assets & Allocation</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Click +25k on any asset to simulate SIP inflows or add a new holding</p>
+                            </div>
+                            <button onclick="openAssetModal()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-medium transition flex items-center gap-1.5">
+                                <i class="fa-solid fa-plus"></i> Add Asset
+                            </button>
+                        </div>
+
+                        <!-- Allocation Bar -->
+                        <div id="asset-allocation-bar" class="w-full h-3.5 rounded-full overflow-hidden flex gap-0.5 mb-3">
+                            <!-- Populated by JS -->
+                        </div>
+                        <div id="asset-allocation-legend" class="flex flex-wrap gap-4 text-xs mb-5">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <div id="assets-ledger-list" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 5 Cols: Liabilities & 5-Year Wealth Compounding Simulator -->
+                <div class="lg:col-span-5 space-y-4">
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                        <div class="flex items-center justify-between mb-4">
+                            <div>
+                                <h2 class="font-semibold text-base">Liabilities & Unsecured Balances</h2>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Auto-synced with Credit Card Unbilled & Active EMIs</p>
+                            </div>
+                            <span id="total-liabilities-badge" class="text-sm font-mono font-bold text-rose-500">₹2,85,000</span>
+                        </div>
+
+                        <div id="liabilities-ledger-list" class="space-y-2.5 mb-6">
+                            <!-- Populated by JS -->
+                        </div>
+
+                        <!-- Core Solvency & Wealth Ratios -->
+                        <div class="pt-4 border-t border-slate-200 dark:border-slate-800">
+                            <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3">Balance Sheet Health Diagnostics</h3>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+                                    <div class="text-[11px] text-slate-400">Asset-to-Debt Ratio</div>
+                                    <div id="ratio-solvency" class="text-base font-bold font-mono text-emerald-500 mt-0.5">6.7x Covered</div>
+                                    <div class="text-[10px] text-slate-400">Benchmark: &gt; 3.0x</div>
+                                </div>
+                                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60">
+                                    <div class="text-[11px] text-slate-400">Invested Wealth Share</div>
+                                    <div id="ratio-invested" class="text-base font-bold font-mono text-indigo-500 mt-0.5">75.5%</div>
+                                    <div class="text-[10px] text-slate-400">Equities + Ret. + Gold</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5-Year Net Worth Compounding Trajectory -->
+                    <div class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-semibold text-base flex items-center gap-2">
+                                    <i class="fa-solid fa-chart-line text-emerald-500"></i> 5-Year Net Worth Compounding
+                                </h3>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Projects current Net Worth + Monthly Surplus SIP</p>
+                            </div>
+                            <select id="cagr-select" onchange="renderBalanceSheetTab(computeMetrics())" class="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-xs font-mono">
+                                <option value="0.10">10% CAGR (Conservative)</option>
+                                <option value="0.12" selected>12% CAGR (Balanced)</option>
+                                <option value="0.15">15% CAGR (Aggressive)</option>
+                            </select>
+                        </div>
+
+                        <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-between">
+                            <div>
+                                <div class="text-[11px] text-emerald-700 dark:text-emerald-300">Projected 2031 Net Worth</div>
+                                <div id="proj-5yr-total" class="text-xl font-bold font-mono text-emerald-600 dark:text-emerald-400">₹89,40,000</div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-[11px] text-slate-500 dark:text-slate-400">Monthly Surplus Invested</div>
+                                <div id="proj-monthly-sip" class="text-sm font-mono font-semibold">₹74,400 / mo</div>
+                            </div>
+                        </div>
+
+                        <div id="projection-bars" class="space-y-2 pt-1">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- MODULE 5: PLANNING HUB -->
+        <section id="view-planning" class="hidden space-y-6">
+            <div class="flex flex-wrap items-end justify-between gap-3">
+                <div><h2 class="text-xl font-bold">Planning Hub</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Goals, portfolio review, tax preparation, and recurring money dates in one place.</p></div>
+                <span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">Sample planning only</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-4"><div><h3 class="font-semibold">Goals & contribution plan</h3><p class="text-xs text-slate-500 dark:text-slate-400">Demo targets; edit amounts and dates when setting up your profile.</p></div><i class="fa-solid fa-bullseye text-indigo-500"></i></div>
+                    <div class="space-y-4">
+                        <div><div class="flex justify-between text-xs mb-1"><span>Emergency reserve</span><span class="font-mono">₹3.5L / ₹6.0L</span></div><div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-full w-[58%] rounded-full bg-emerald-500"></div></div><p class="text-[10px] text-slate-400 mt-1">Priority 1 • target 31 Dec 2027 • 6 months of essential spend</p></div>
+                        <div><div class="flex justify-between text-xs mb-1"><span>Home down payment</span><span class="font-mono">₹2.5L / ₹25L</span></div><div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-full w-[10%] rounded-full bg-indigo-500"></div></div><p class="text-[10px] text-slate-400 mt-1">Priority 2 • target 31 Dec 2031 • assumed return 6%</p></div>
+                        <div><div class="flex justify-between text-xs mb-1"><span>Retirement investing</span><span class="font-mono">₹10.8L tracked</span></div><div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800"><div class="h-full w-[35%] rounded-full bg-violet-500"></div></div><p class="text-[10px] text-slate-400 mt-1">Link balances and contributions in Balance Sheet.</p></div>
+                    </div>
+                    <div class="mt-4 p-3 rounded-xl bg-indigo-500/5 border border-indigo-500/15 text-xs text-slate-600 dark:text-slate-300"><strong class="text-indigo-500">Planning prompt:</strong> Fund your emergency reserve before assigning surplus to long-horizon goals. Contribution estimates depend on the return assumption and may be wrong.</div>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-4"><div><h3 class="font-semibold">Tax planning workspace</h3><p class="text-xs text-slate-500 dark:text-slate-400">Organize inputs for an old vs. new regime review.</p></div><i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i></div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="text-xs text-slate-500">Tax jurisdiction<input value="India" class="mt-1 w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                        <label class="text-xs text-slate-500">Tax year<select class="mt-1 w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"><option>FY 2026–27</option><option>FY 2025–26</option></select></label>
+                        <label class="text-xs text-slate-500">Annual taxable income<input type="number" placeholder="Enter amount" class="mt-1 w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                        <label class="text-xs text-slate-500">Deductions to review<input type="number" placeholder="Enter amount" class="mt-1 w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                        <label class="text-xs text-slate-500">Realized gains / losses<input type="number" placeholder="Enter net amount" class="mt-1 w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                        <label class="text-xs text-slate-500">Regime to evaluate<select class="mt-1 w-full px-2.5 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"><option>Compare both</option><option>Old regime</option><option>New regime</option></select></label>
+                    </div>
+                    <div class="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-[11px] text-amber-700 dark:text-amber-300">Tax rates, exemptions, and limits change. This workspace does not calculate tax yet; verify current rules against official sources before filing.</div>
+                    <div class="mt-3 text-xs"><strong>Documents to gather</strong><div class="grid grid-cols-2 gap-2 mt-2 text-slate-500 dark:text-slate-400"><label><input type="checkbox" class="accent-indigo-600"> Salary / income records</label><label><input type="checkbox" class="accent-indigo-600"> Interest certificates</label><label><input type="checkbox" class="accent-indigo-600"> Capital gains statements</label><label><input type="checkbox" class="accent-indigo-600"> Deduction proofs</label></div></div>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">Portfolio review & investment plan</h3><p class="text-xs text-slate-500 dark:text-slate-400">Use your Balance Sheet holdings as the starting point.</p></div><i class="fa-solid fa-chart-pie text-violet-500"></i></div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60"><div class="text-[10px] text-slate-400">Equity & MFs</div><strong class="font-mono">₹9.6L</strong></div>
+                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60"><div class="text-[10px] text-slate-400">Retirement</div><strong class="font-mono">₹4.2L</strong></div>
+                        <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/60"><div class="text-[10px] text-slate-400">Gold</div><strong class="font-mono">₹1.9L</strong></div>
+                    </div>
+                    <div class="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-300"><div class="flex justify-between"><span>Target allocation</span><span class="font-mono">Not configured</span></div><div class="flex justify-between"><span>Return calculation</span><span class="font-mono">Needs dated cash flows</span></div><div class="flex justify-between"><span>Fund overlap / expense ratios</span><span class="font-mono">Needs holdings import</span></div></div>
+                    <div class="mt-4 flex flex-wrap gap-2"><button onclick="switchTab('balancesheet')" class="px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium">Review holdings</button><span class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs text-slate-500">Plan SIPs after goals & risk are set</span></div>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">Financial calendar & monthly review</h3><p class="text-xs text-slate-500 dark:text-slate-400">Sample reminders based on the demo accounts.</p></div><i class="fa-solid fa-calendar-days text-amber-500"></i></div>
+                    <div class="space-y-2 text-xs"><div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span>Axis Atlas statement</span><strong>10th monthly</strong></div><div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span>HDFC Regalia payment due</span><strong>10th monthly</strong></div><div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span>Portfolio & net worth review</span><strong>Last day monthly</strong></div></div>
+                    <div class="mt-4 grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400"><label><input type="checkbox" class="accent-indigo-600"> Reconcile transactions</label><label><input type="checkbox" class="accent-indigo-600"> Review card caps</label><label><input type="checkbox" class="accent-indigo-600"> Update net worth</label><label><input type="checkbox" class="accent-indigo-600"> Review goal progress</label></div>
+                    <p class="text-[10px] text-slate-400 mt-3">Calendar export and reminders can be added in a later iteration; these dates are sample-only.</p>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">What-if scenario lab</h3><p class="text-xs text-slate-500 dark:text-slate-400">Explore a monthly choice before committing to it.</p></div><i class="fa-solid fa-sliders text-indigo-500"></i></div>
+                    <label class="text-xs text-slate-500">Extra monthly amount to allocate<input id="scenario-extra" type="number" value="15000" min="0" oninput="updateScenario()" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></label>
+                    <div class="grid grid-cols-2 gap-2 mt-3"><button onclick="setScenarioMode('debt')" id="scenario-debt-btn" class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs">Extra debt payment</button><button onclick="setScenarioMode('goal')" id="scenario-goal-btn" class="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">Goal contribution</button></div>
+                    <div id="scenario-result" class="mt-3 p-3 rounded-xl bg-indigo-500/5 text-xs">Scenario result</div><p class="text-[10px] text-slate-400 mt-2">Cash-flow comparison only; does not forecast investment returns or interest savings.</p>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">Debt payoff planner</h3><p class="text-xs text-slate-500 dark:text-slate-400">Compare payoff order using entered sample loan balances and rates.</p></div><i class="fa-solid fa-arrow-down-wide-short text-rose-500"></i></div>
+                    <div class="flex gap-2 items-end"><label class="text-xs text-slate-500 flex-1">Extra monthly payment<input id="debt-extra" type="number" value="10000" min="0" oninput="renderDebtStrategy()" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></label><label class="text-xs text-slate-500 flex-1">Method<select id="debt-method" onchange="renderDebtStrategy()" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"><option value="avalanche">Avalanche · highest rate first</option><option value="snowball">Snowball · smallest balance first</option></select></label></div>
+                    <div id="debt-result" class="mt-3 space-y-2 text-xs"></div><p class="text-[10px] text-slate-400 mt-2">Ordering aid only. Estimates exclude fees, tax, prepayment penalties, rate changes, and revolving card debt.</p>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">Surplus allocation plan</h3><p class="text-xs text-slate-500 dark:text-slate-400">Assign your sample monthly surplus to priorities.</p></div><i class="fa-solid fa-pie-chart text-emerald-500"></i></div>
+                    <div class="grid grid-cols-3 gap-3 text-xs"><label class="text-slate-500">Emergency %<input id="alloc-emergency" type="number" value="40" min="0" max="100" oninput="updateSurplusPlan()" class="mt-1 w-full px-2 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></label><label class="text-slate-500">Debt %<input id="alloc-debt" type="number" value="30" min="0" max="100" oninput="updateSurplusPlan()" class="mt-1 w-full px-2 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></label><label class="text-slate-500">Invest %<input id="alloc-invest" type="number" value="30" min="0" max="100" oninput="updateSurplusPlan()" class="mt-1 w-full px-2 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700"></label></div>
+                    <div id="allocation-result" class="mt-3 space-y-2 text-xs"></div>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">Protection & insurance review</h3><p class="text-xs text-slate-500 dark:text-slate-400">Track cover, premium, dependants, and renewal dates.</p></div><i class="fa-solid fa-shield-heart text-sky-500"></i></div>
+                    <div class="space-y-2 text-xs"><div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span>Health cover · sample</span><strong>₹10L · renew 15 Mar</strong></div><div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span>Term cover · sample</span><strong>₹1Cr · renew 02 Aug</strong></div><div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span>Personal accident · sample</span><strong>Not reviewed</strong></div></div>
+                    <div class="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500 dark:text-slate-400"><label><input type="checkbox" class="accent-indigo-600"> Beneficiaries checked</label><label><input type="checkbox" class="accent-indigo-600"> Employer cover reviewed</label><label><input type="checkbox" class="accent-indigo-600"> Exclusions understood</label><label><input type="checkbox" class="accent-indigo-600"> Renewal reminder set</label></div>
+                    <p class="text-[10px] text-slate-400 mt-2">Coverage adequacy depends on your circumstances. Use this as a recordkeeping checklist, not a product recommendation.</p>
+                </section>
+
+                <section class="p-5 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <div class="flex items-center justify-between mb-3"><div><h3 class="font-semibold">Action center</h3><p class="text-xs text-slate-500 dark:text-slate-400">A short list of next steps for the monthly review.</p></div><i class="fa-solid fa-list-check text-amber-500"></i></div>
+                    <div class="space-y-3 text-xs"><label class="flex gap-2"><input type="checkbox" class="accent-indigo-600"><span><strong>Reconcile card balances</strong><span class="block text-slate-400">Compare statement, unbilled balance, and bank payment.</span></span></label><label class="flex gap-2"><input type="checkbox" class="accent-indigo-600"><span><strong>Review goal contributions</strong><span class="block text-slate-400">Check emergency reserve progress before investing surplus.</span></span></label><label class="flex gap-2"><input type="checkbox" class="accent-indigo-600"><span><strong>Prepare tax documents</strong><span class="block text-slate-400">Gather income, deductions, and realized-gain records.</span></span></label><label class="flex gap-2"><input type="checkbox" class="accent-indigo-600"><span><strong>Review insurance renewals</strong><span class="block text-slate-400">Confirm dates, beneficiaries, and cover details.</span></span></label></div>
+                </section>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODAL 1: LOG EXPENSE WITH SMART ROUTING    -->
+    <!-- ========================================== -->
+    <div id="expense-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-semibold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-indigo-500"></i> Log Expense & Route Card
+                </h3>
+                <button onclick="closeExpenseModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Merchant / Description</label>
+                    <input type="text" id="exp-desc" placeholder="e.g., Swiggy Instamart, Shell Fuel, Indigo Flight"
+                        class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Category</label>
+                        <select id="exp-cat" onchange="previewModalCardAdvice()" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                            <option value="dining">Dining & Food</option>
+                            <option value="utilities">Utilities & Bills</option>
+                            <option value="online">Online Shopping</option>
+                            <option value="travel">Travel & Flights</option>
+                            <option value="groceries">Groceries</option>
+                            <option value="upi">UPI Scan & Pay</option>
+                            <option value="general">General POS</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Amount (₹)</label>
+                        <input type="number" id="exp-amt" value="2500" oninput="previewModalCardAdvice()"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:border-indigo-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Payment Instrument</label>
+                    <select id="exp-card" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-indigo-500">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+
+                <!-- Live Agent Routing Advice Box -->
+                <div id="modal-routing-advice" class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-xs text-indigo-700 dark:text-indigo-300">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeExpenseModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cancel</button>
+                <button onclick="submitNewExpense()" class="px-4 py-2 rounded-xl text-xs font-medium bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-500/20">Record Transaction</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 2: ADD ASSET TO BALANCE SHEET        -->
+    <!-- ========================================== -->
+    <div id="asset-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-semibold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-vault text-emerald-500"></i> Add / Update Asset Holding
+                </h3>
+                <button onclick="closeAssetModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Holding Name</label>
+                    <input type="text" id="asset-name" placeholder="e.g., Parag Parikh Flexi Cap, Arbitrage Fund"
+                        class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-emerald-500">
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Asset Class</label>
+                        <select id="asset-class" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-emerald-500">
+                            <option value="Liquid Cash">Liquid Cash</option>
+                            <option value="Equities & Mutual Funds">Equities & Mutual Funds</option>
+                            <option value="Retirement & Fixed Income">Retirement & Fixed Income</option>
+                            <option value="Gold & Alternatives">Gold & Alternatives</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Current Value (₹)</label>
+                        <input type="number" id="asset-val" value="50000" step="5000"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:border-emerald-500">
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeAssetModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cancel</button>
+                <button onclick="submitNewAsset()" class="px-4 py-2 rounded-xl text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white">Save Holding</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL 3: ADD RECURRING SUBSCRIPTION        -->
+    <!-- ========================================== -->
+    <div id="sub-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-md w-full p-5 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h3 class="font-semibold text-base flex items-center gap-2">
+                    <i class="fa-solid fa-rotate text-purple-500"></i> Add Recurring Subscription
+                </h3>
+                <button onclick="closeSubModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3">
+                <div>
+                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Service Name</label>
+                    <input type="text" id="sub-name" placeholder="e.g., ChatGPT Plus, Spotify Duo, Apple iCloud"
+                        class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div class="grid grid-cols-3 gap-2.5">
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Monthly Cost (₹)</label>
+                        <input type="number" id="sub-cost" value="649" step="50"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Uses / Month</label>
+                        <input type="number" id="sub-uses" value="15" min="1"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Billing Day</label>
+                        <input type="number" id="sub-day" value="18" min="1" max="28"
+                            class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm font-mono focus:outline-none focus:border-purple-500">
+                    </div>
+                </div>
+                <div>
+                    <label class="text-xs text-slate-500 dark:text-slate-400 block mb-1">Billed on Credit Card</label>
+                    <select id="sub-card" class="w-full px-3 py-2 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm focus:outline-none focus:border-purple-500">
+                        <!-- Populated by JS -->
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeSubModal()" class="px-4 py-2 rounded-xl text-xs font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">Cancel</button>
+                <button onclick="submitNewSubscription()" class="px-4 py-2 rounded-xl text-xs font-medium bg-purple-600 hover:bg-purple-500 text-white">Add Subscription</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recurring Commitment Modal -->
+    <div id="commitment-modal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl max-w-2xl w-full p-5 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+            <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3"><div><h3 class="font-semibold">Add Recurring Commitment</h3><p class="text-[11px] text-slate-400">Enter the real bill frequency; monthly equivalent is calculated for planning.</p></div><button onclick="closeCommitmentModal()" class="text-slate-400 hover:text-slate-700">✕</button></div>
+            <form id="commitment-form" onsubmit="event.preventDefault(); saveCommitment();" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label class="text-xs text-slate-500 sm:col-span-2">Name<input id="commitment-name" required maxlength="80" placeholder="e.g. Health insurance premium" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500">Type<select id="commitment-type" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"><option value="living">Living cost / subscription</option><option value="insurance">Insurance premium</option><option value="debt">Debt payment / EMI</option><option value="investment">Investment / SIP</option></select></label>
+                <label class="text-xs text-slate-500">Amount per bill<input id="commitment-amount" type="number" required min="1" step="0.01" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500">Frequency<select id="commitment-frequency" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"><option>Monthly</option><option>Weekly</option><option>Fortnightly</option><option>Quarterly</option><option>Half-yearly</option><option>Yearly</option><option>One-time</option></select></label>
+                <label class="text-xs text-slate-500">Payment account / method<input id="commitment-account" maxlength="60" placeholder="Nickname only" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500">Last paid<input id="commitment-last-paid" type="date" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500">Next due<input id="commitment-next-due" type="date" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500">Contract / policy end (optional)<input id="commitment-end-date" type="date" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500 sm:col-span-2">Notes<input id="commitment-note" maxlength="140" placeholder="Policy type, EMI end month, renewal note… avoid full policy/account numbers" class="mt-1 w-full px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-sm"></label>
+                <label class="text-xs text-slate-500 sm:col-span-2 flex items-center gap-2"><input id="commitment-autopay" type="checkbox" class="accent-indigo-600"> Auto-pay enabled</label>
+                <div class="sm:col-span-2 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800 pt-3"><button type="button" onclick="closeCommitmentModal()" class="px-4 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs">Cancel</button><button type="submit" class="px-4 py-2 rounded-lg bg-indigo-600 text-white text-xs font-medium">Add commitment</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Toast Notification -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION LOGIC & FINANCIAL STATE ENGINE -->
+    <!-- ========================================== -->
+    <script>
+        // --- CENTRAL FINANCIAL STATE ---
+        const state = {
+            currentDayOfMonth: 7, // Nov 7
+            monthlyIncome: 160000,
+            fixedObligations: {
+                rentAndMaintenance: 28000,
+                activeEmis: 18500
+            },
+            variableSpend: 32700,
+
+            // Credit Card Portfolio Registry
+            cards: [
+                {
+                    id: 'axis-atlas',
+                    name: 'Axis Bank Atlas',
+                    network: 'Visa Infinite',
+                    limit: 200000,
+                    balance: 88000, // 44% utilization -> Triggers Alert!
+                    billDay: 10,    // Generates in 3 days!
+                    dueDay: 28,
+                    color: 'from-slate-800 to-indigo-950',
+                    baseRate: 4.0,  // 2 EDGE Miles = ₹4 value per ₹100
+                    rates: { travel: 10.0, dining: 4.0, online: 4.0, utilities: 0, groceries: 4.0, upi: 0, general: 4.0 },
+                    bestFor: 'Flights, Hotels & Offline POS (4%–10%)',
+                    tenureMonths: 14,
+                    limitBumpEligible: false,
+                    rewardPointsName: 'EDGE Miles',
+                    rewardUnits: 8450,
+                    pointValueInr: 2.0,
+                    annualSpendYtd: 640000,
+                    milestoneTarget: 750000,
+                    milestoneLabel: 'Gold Tier + 2,500 Bonus Miles at ₹7.5L'
+                },
+                {
+                    id: 'sbi-cashback',
+                    name: 'SBI Cashback Card',
+                    network: 'Visa Signature',
+                    limit: 150000,
+                    balance: 24500,
+                    billDay: 18,
+                    dueDay: 6,
+                    color: 'from-blue-700 to-indigo-900',
+                    baseRate: 1.0,
+                    rates: { online: 5.0, dining: 5.0, groceries: 5.0, travel: 5.0, utilities: 0, upi: 0, general: 1.0 },
+                    bestFor: 'All Online Merchants & E-Commerce (5% Flat)',
+                    tenureMonths: 9,
+                    limitBumpEligible: true,
+                    rewardPointsName: 'Statement Cashback Pool',
+                    rewardUnits: 3420,
+                    pointValueInr: 1.0,
+                    annualSpendYtd: 185000,
+                    milestoneTarget: 200000,
+                    milestoneLabel: '₹999 Annual Fee Reversal at ₹2.0L'
+                },
+                {
+                    id: 'airtel-axis',
+                    name: 'Airtel Axis Bank',
+                    network: 'Mastercard',
+                    limit: 100000,
+                    balance: 6800,
+                    billDay: 12,
+                    dueDay: 1,
+                    color: 'from-rose-700 to-slate-900',
+                    baseRate: 1.0,
+                    rates: { utilities: 12.0, dining: 10.0, groceries: 10.0, online: 1.0, travel: 1.0, upi: 0, general: 1.0 },
+                    bestFor: 'Broadband, Electricity, Mobile & Swiggy/Zomato (10%–25%)',
+                    tenureMonths: 11,
+                    limitBumpEligible: false,
+                    rewardPointsName: 'Direct Cashback Pool',
+                    rewardUnits: 1250,
+                    pointValueInr: 1.0,
+                    annualSpendYtd: 94000,
+                    milestoneTarget: 200000,
+                    milestoneLabel: '₹500 Annual Fee Waiver at ₹2.0L'
+                },
+                {
+                    id: 'hdfc-regalia',
+                    name: 'HDFC Regalia Gold',
+                    network: 'Mastercard World',
+                    limit: 300000,
+                    balance: 18700,
+                    billDay: 22,
+                    dueDay: 10,
+                    color: 'from-amber-700 to-slate-900',
+                    baseRate: 1.3,
+                    rates: { travel: 6.5, online: 4.0, dining: 2.6, utilities: 1.3, groceries: 2.6, upi: 1.5, general: 1.3 },
+                    bestFor: 'SmartBuy Vouchers, Lounge & High Limit Cushion',
+                    tenureMonths: 24,
+                    limitBumpEligible: true,
+                    rewardPointsName: 'Reward Points (SmartBuy)',
+                    rewardUnits: 13700,
+                    pointValueInr: 0.5,
+                    annualSpendYtd: 365000,
+                    milestoneTarget: 400000,
+                    milestoneLabel: '₹2,500 Fee Waiver + ₹1.5k Voucher at ₹4.0L'
+                }
+            ],
+
+            // Recurring Subscriptions Registry
+            subscriptions: [
+                { id: 'sub-1', name: 'ACT Fibernet & Airtel Postpaid', cost: 1699, usesPerMonth: 30, cardId: 'airtel-axis', renewalDay: 11, active: true, category: 'utilities' },
+                { id: 'sub-2', name: 'Adobe Creative Cloud Plan', cost: 4200, usesPerMonth: 1, cardId: 'hdfc-regalia', renewalDay: 10, active: true, category: 'online' },
+                { id: 'sub-3', name: 'Cult.fit Elite Pass (Monthly)', cost: 1800, usesPerMonth: 18, cardId: 'sbi-cashback', renewalDay: 15, active: true, category: 'online' },
+                { id: 'sub-4', name: 'Netflix + Disney+ Hotstar Bundle', cost: 498, usesPerMonth: 3, cardId: 'sbi-cashback', renewalDay: 19, active: true, category: 'online' }
+            ],
+
+            // Recurring commitments: demo ledger with cash-flow type kept separate
+            commitments: [
+                { id:'rc-1', name:'Rent & maintenance', type:'living', amount:28000, frequency:'Monthly', lastPaid:'2026-11-01', nextDue:'2026-12-01', endDate:'', account:'Main bank', autopay:true, active:true, note:'Demo fixed cost' },
+                { id:'rc-2', name:'Home internet & mobile', type:'living', amount:1699, frequency:'Monthly', lastPaid:'2026-10-11', nextDue:'2026-11-11', endDate:'', account:'Airtel Axis', autopay:true, active:true, note:'Demo recurring bill' },
+                { id:'rc-3', name:'Health insurance premium', type:'insurance', amount:7535, frequency:'Yearly', lastPaid:'2026-02-01', nextDue:'2027-02-01', endDate:'2028-02-01', account:'Main bank', autopay:false, active:true, note:'Demo policy; cover not entered' },
+                { id:'rc-4', name:'Vehicle loan EMI', type:'debt', amount:12500, frequency:'Monthly', lastPaid:'2026-11-05', nextDue:'2026-12-05', endDate:'2028-06-05', account:'Main bank', autopay:true, active:true, note:'Outstanding principal tracked under EMIs' },
+                { id:'rc-5', name:'Index fund SIP', type:'investment', amount:5000, frequency:'Monthly', lastPaid:'2026-11-02', nextDue:'2026-12-02', endDate:'', account:'Brokerage', autopay:true, active:true, note:'Investment contribution, not consumption' },
+                { id:'rc-6', name:'Cloud storage plan', type:'living', amount:219, frequency:'Monthly', lastPaid:'2026-10-13', nextDue:'2026-11-13', endDate:'', account:'SBI Cashback', autopay:true, active:true, note:'Demo subscription' }
+            ],
+
+            // Active EMIs & Loans
+            emis: [
+                { id: 'emi-1', name: 'Vehicle Loan (8.9% APR)', monthlyEmi: 12500, outstandingPrincipal: 215000, remainingMonths: 20, rate: 8.9 },
+                { id: 'emi-2', name: 'MacBook Pro No-Cost EMI', monthlyEmi: 6000, outstandingPrincipal: 36000, remainingMonths: 6, rate: 0.0 }
+            ],
+
+            // Balance Sheet Assets
+            assets: [
+                { id: 'ast-1', name: 'High-Yield Savings Account', category: 'Liquid Cash', value: 190000 },
+                { id: 'ast-2', name: 'Sweep-in Emergency FD', category: 'Liquid Cash', value: 160000 },
+                { id: 'ast-3', name: 'Nifty 50 & Flexi-Cap Index MFs', category: 'Equities & Mutual Funds', value: 640000 },
+                { id: 'ast-4', name: 'Direct Equity Portfolio', category: 'Equities & Mutual Funds', value: 320000 },
+                { id: 'ast-5', name: 'Employee Provident Fund (EPF)', category: 'Retirement & Fixed Income', value: 420000 },
+                { id: 'ast-6', name: 'Sovereign Gold Bonds (SGB)', category: 'Gold & Alternatives', value: 190000 }
+            ],
+
+            // Recent Transactions Log
+            transactions: [
+                { id: 'tx-1', desc: 'Indigo Flight Booking (Pune-BLR)', category: 'travel', amount: 11400, cardId: 'axis-atlas', date: '06 Nov', optimal: true, rewardEarned: 1140 },
+                { id: 'tx-2', desc: 'Electricity & Broadband Bill', category: 'utilities', amount: 3400, cardId: 'airtel-axis', date: '05 Nov', optimal: true, rewardEarned: 408 },
+                { id: 'tx-3', desc: 'Amazon Electronics Order', category: 'online', amount: 8500, cardId: 'hdfc-regalia', date: '03 Nov', optimal: false, rewardEarned: 110, missedReward: 315 },
+                { id: 'tx-4', desc: 'Zomato Weekend Dinner', category: 'dining', amount: 2200, cardId: 'airtel-axis', date: '02 Nov', optimal: true, rewardEarned: 220 }
+            ],
+
+            // Dismissed/Resolved Special Actions
+            idleCashOptimized: false
+        };
+
+        try {
+            const savedCommitments = JSON.parse(localStorage.getItem('finagent-demo-commitments-v1') || 'null');
+            if (Array.isArray(savedCommitments)) state.commitments = savedCommitments;
+        } catch (error) { console.warn('Saved commitment list could not be loaded.', error); }
+
+        function persistCommitments() {
+            try { localStorage.setItem('finagent-demo-commitments-v1', JSON.stringify(state.commitments)); }
+            catch (error) { showToast('Commitment changes could not be saved in this browser.', 'error'); }
+        }
+
+        let scenarioMode = 'debt';
+
+        // --- FORMATTERS ---
+        function formatINR(val) {
+            const num = Math.round(Number(val) || 0);
+            return '₹' + num.toLocaleString('en-IN');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const icon = type === 'success' ? 'fa-circle-check text-emerald-400' : 'fa-bolt text-indigo-400';
+            toast.className = 'px-4 py-3 rounded-xl bg-slate-900 dark:bg-slate-800 text-white border border-slate-700 shadow-xl flex items-center gap-2.5 text-xs font-medium pointer-events-auto transition-all duration-300';
+            toast.innerHTML = `<i class="fa-solid ${icon} text-sm"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(8px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3400);
+        }
+
+        // --- CORE METRICS ENGINE ---
+        function computeMetrics() {
+            const activeSubsBurn = state.subscriptions.filter(s => s.active).reduce((acc, s) => acc + s.cost, 0);
+            const fixedBurn = state.fixedObligations.rentAndMaintenance + state.fixedObligations.activeEmis;
+            const totalOutflow = fixedBurn + activeSubsBurn + state.variableSpend;
+            const monthlySurplus = Math.max(0, state.monthlyIncome - totalOutflow);
+            const savingsRate = state.monthlyIncome > 0 ? ((monthlySurplus / state.monthlyIncome) * 100).toFixed(1) : '0.0';
+
+            const totalLimit = state.cards.reduce((s, c) => s + c.limit, 0);
+            const totalCardBalance = state.cards.reduce((s, c) => s + c.balance, 0);
+            const aggUtilization = totalLimit > 0 ? (totalCardBalance / totalLimit) * 100 : 0;
+
+            let peakCardUtil = 0;
+            let cardsOver30 = 0;
+            state.cards.forEach(c => {
+                const u = (c.balance / c.limit) * 100;
+                if (u > peakCardUtil) peakCardUtil = u;
+                if (u > 30) cardsOver30++;
+            });
+
+            // Simulated CIBIL Score based on peak card utilization & aggregate utilization
+            let simulatedCibil = 805;
+            if (peakCardUtil > 30) simulatedCibil -= Math.round((peakCardUtil - 30) * 1.35);
+            if (aggUtilization > 20) simulatedCibil -= Math.round((aggUtilization - 20) * 0.8);
+
+            // Assets & Liabilities
+            const totalAssets = state.assets.reduce((s, a) => s + a.value, 0);
+            const liquidAssets = state.assets.filter(a => a.category === 'Liquid Cash').reduce((s, a) => s + a.value, 0);
+            const totalEmiPrincipal = state.emis.reduce((s, e) => s + e.outstandingPrincipal, 0);
+            const totalLiabilities = totalCardBalance + totalEmiPrincipal;
+            const netWorth = totalAssets - totalLiabilities;
+
+            const essentialMonthlyNeed = fixedBurn + activeSubsBurn + 12000; // Basic groceries/utilities buffer
+            const runwayMonths = essentialMonthlyNeed > 0 ? (liquidAssets / essentialMonthlyNeed).toFixed(1) : '0.0';
+
+            // Estimated Annual Rewards based on card balances & routing
+            const monthlyRewards = state.cards.reduce((sum, c) => {
+                const avgRate = c.id === 'axis-atlas' ? 0.055 : (c.id === 'sbi-cashback' ? 0.05 : (c.id === 'airtel-axis' ? 0.10 : 0.025));
+                return sum + (c.balance * avgRate);
+            }, 0);
+            const annualRewards = Math.round(monthlyRewards * 12);
+
+            return {
+                activeSubsBurn,
+                fixedBurn,
+                totalOutflow,
+                monthlySurplus,
+                savingsRate,
+                totalLimit,
+                totalCardBalance,
+                aggUtilization,
+                peakCardUtil,
+                cardsOver30,
+                simulatedCibil,
+                totalAssets,
+                liquidAssets,
+                totalEmiPrincipal,
+                totalLiabilities,
+                netWorth,
+                runwayMonths,
+                annualRewards
+            };
+        }
+
+        // --- RENDER ALL VIEWS ---
+        function renderAll() {
+            const m = computeMetrics();
+
+            // 1. Update Top KPI Strip
+            document.getElementById('kpi-networth').textContent = formatINR(m.netWorth);
+            document.getElementById('kpi-networth-sub').textContent = `Assets ${(m.totalAssets / 100000).toFixed(2)}L • Debt ${(m.totalLiabilities / 100000).toFixed(2)}L`;
+
+            document.getElementById('kpi-surplus').textContent = formatINR(m.monthlySurplus);
+            document.getElementById('kpi-savings-rate').textContent = `${m.savingsRate}%`;
+            document.getElementById('kpi-inflow-outflow').textContent = `In: ${(state.monthlyIncome / 100000).toFixed(2)}L • Out: ${(m.totalOutflow / 1000).toFixed(1)}k`;
+
+            document.getElementById('kpi-utilization').textContent = `${m.aggUtilization.toFixed(1)}%`;
+            document.getElementById('kpi-cibil-badge').textContent = `CIBIL ${m.simulatedCibil}`;
+            const utilStatusEl = document.getElementById('kpi-util-status');
+            if (m.cardsOver30 > 0) {
+                utilStatusEl.textContent = `${m.cardsOver30} Card >30%`;
+                utilStatusEl.className = 'text-[11px] text-amber-500 font-medium';
+            } else {
+                utilStatusEl.textContent = 'All Cards <30%';
+                utilStatusEl.className = 'text-[11px] text-emerald-500 font-medium';
+            }
+            document.getElementById('kpi-limit-sub').textContent = `Used ${(m.totalCardBalance / 100000).toFixed(2)}L of ${(m.totalLimit / 100000).toFixed(2)}L Limit`;
+
+            document.getElementById('kpi-rewards-val').textContent = formatINR(m.annualRewards);
+            document.getElementById('kpi-runway').textContent = `${m.runwayMonths} Mos`;
+            document.getElementById('kpi-liquid-sub').textContent = `${(m.liquidAssets / 100000).toFixed(2)}L Liquid Reserve`;
+
+            // 2. Render Sub-Components
+            renderAgentAlerts(m);
+            renderCashflowSection(m);
+            renderOverviewCardRadar();
+            runQuickRouter();
+            renderDetailedCardsTab(m);
+            renderSubscriptionsAndEmis(m);
+            renderCommitments();
+            renderBalanceSheetTab(m);
+            updateScenario();
+            renderDebtStrategy();
+            updateSurplusPlan();
+        }
+
+        function setScenarioMode(mode) {
+            scenarioMode = mode;
+            document.getElementById('scenario-debt-btn').className = mode === 'debt' ? 'px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs' : 'px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs';
+            document.getElementById('scenario-goal-btn').className = mode === 'goal' ? 'px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs' : 'px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-xs';
+            updateScenario();
+        }
+
+        function updateScenario() {
+            const amount = Math.max(0, Number(document.getElementById('scenario-extra')?.value) || 0);
+            const surplus = computeMetrics().monthlySurplus;
+            const use = Math.min(amount, surplus);
+            const remaining = surplus - use;
+            const result = document.getElementById('scenario-result');
+            if (!result) return;
+            const action = scenarioMode === 'debt' ? 'extra debt repayment' : 'goal contribution';
+            result.innerHTML = `<strong>Demo scenario:</strong> Allocate ${formatINR(use)}/mo to ${action}. Remaining sample surplus: <strong>${formatINR(remaining)}/mo</strong>. ${amount > surplus ? 'Requested amount exceeds the modeled surplus.' : ''}`;
+        }
+
+        function renderDebtStrategy() {
+            const target = document.getElementById('debt-result');
+            if (!target) return;
+            const method = document.getElementById('debt-method')?.value || 'avalanche';
+            const debts = state.emis.slice().sort((a, b) => method === 'avalanche' ? b.rate - a.rate : a.outstandingPrincipal - b.outstandingPrincipal);
+            target.innerHTML = debts.map((d, i) => `<div class="flex justify-between p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/60"><span><span class="font-semibold">${i + 1}. ${d.name}</span><span class="block text-slate-400">${d.rate}% entered rate · ${d.remainingMonths} months left</span></span><strong>${formatINR(d.outstandingPrincipal)}</strong></div>`).join('') || '<p class="text-slate-400">Add debts to compare payoff order.</p>';
+        }
+
+        function updateSurplusPlan() {
+            const result = document.getElementById('allocation-result');
+            if (!result) return;
+            const parts = [Number(document.getElementById('alloc-emergency')?.value) || 0, Number(document.getElementById('alloc-debt')?.value) || 0, Number(document.getElementById('alloc-invest')?.value) || 0];
+            const surplus = computeMetrics().monthlySurplus;
+            const labels = ['Emergency reserve', 'Debt', 'Investing'];
+            result.innerHTML = parts.map((p, i) => `<div class="flex justify-between"><span>${labels[i]} · ${p}%</span><strong>${formatINR(surplus * p / 100)}/mo</strong></div>`).join('') + `<div class="pt-2 border-t border-slate-200 dark:border-slate-700 ${parts.reduce((a,b)=>a+b,0)===100?'text-emerald-500':'text-amber-500'}">Total allocation: ${parts.reduce((a,b)=>a+b,0)}%${parts.reduce((a,b)=>a+b,0)!==100?' · adjust to 100%':''}</div>`;
+        }
+
+        // --- COMPONENT 1: AUTONOMOUS AGENT ALERTS ---
+        function renderAgentAlerts(m) {
+            const alerts = [];
+
+            // Rule 1: Per-Card Utilization > 30% + Statement Date Proximity
+            state.cards.forEach(c => {
+                const util = (c.balance / c.limit) * 100;
+                const daysToBill = c.billDay - state.currentDayOfMonth;
+                if (util > 30) {
+                    const targetBal = Math.floor(c.limit * 0.28);
+                    const prepayAmt = c.balance - targetBal;
+                    alerts.push({
+                        severity: 'high',
+                        badge: `Statement in ${daysToBill > 0 ? daysToBill : 1} Days`,
+                        icon: 'fa-triangle-exclamation text-amber-500',
+                        title: `${c.name} Utilization at ${util.toFixed(1)}% (Exceeds 30% CIBIL Ceiling)`,
+                        desc: `Current unbilled balance is ${formatINR(c.balance)} on a ${formatINR(c.limit)} limit. Make an interim payment of ${formatINR(prepayAmt)} before Nov ${c.billDay} so only 28% is reported to credit bureaus (+16 CIBIL pts).`,
+                        actionLabel: `Prepay ${formatINR(prepayAmt)} Now`,
+                        actionFn: `prepayCardToSafeZone('${c.id}', ${prepayAmt})`
+                    });
+                }
+            });
+
+            // Rule 2: Subscription Cost-Per-Use Leak Audit
+            const leakySub = state.subscriptions.find(s => s.active && (s.cost / Math.max(1, s.usesPerMonth)) > 500);
+            if (leakySub) {
+                const cpu = Math.round(leakySub.cost / Math.max(1, leakySub.usesPerMonth));
+                alerts.push({
+                    severity: 'medium',
+                    badge: `Renews Nov ${leakySub.renewalDay}`,
+                    icon: 'fa-scissors text-purple-500',
+                    title: `Subscription Leak: ${leakySub.name} (${formatINR(cpu)} per use)`,
+                    desc: `Only ${leakySub.usesPerMonth} logged session(s) in the last 30 days. Pausing before Nov ${leakySub.renewalDay} saves ${formatINR(leakySub.cost)}/mo (${formatINR(leakySub.cost * 12)}/yr) and boosts investable surplus.`,
+                    actionLabel: `Pause & Save ${formatINR(leakySub.cost)}/mo`,
+                    actionFn: `toggleSubscription('${leakySub.id}')`
+                });
+            }
+
+            // Rule 3: Credit Limit Enhancement Eligibility
+            const bumpCard = state.cards.find(c => c.limitBumpEligible);
+            if (bumpCard) {
+                const newLimit = Math.round(bumpCard.limit * 1.4);
+                alerts.push({
+                    severity: 'info',
+                    badge: `${bumpCard.tenureMonths}m Clean History`,
+                    icon: 'fa-arrow-up-right-dots text-indigo-500',
+                    title: `Credit Limit Bump Ready: ${bumpCard.name}`,
+                    desc: `You have ${bumpCard.tenureMonths}+ months of full on-time repayments. Increasing limit from ${formatINR(bumpCard.limit)} to ${formatINR(newLimit)} permanently lowers your aggregate utilization ratio.`,
+                    actionLabel: `Apply Limit Bump (+${formatINR(newLimit - bumpCard.limit)})`,
+                    actionFn: `applyLimitEnhancement('${bumpCard.id}', ${newLimit})`
+                });
+            }
+
+            // Rule 4: Idle Savings Account Cash Sweep
+            if (!state.idleCashOptimized) {
+                const savingsAsset = state.assets.find(a => a.id === 'ast-1');
+                if (savingsAsset && savingsAsset.value > 100000) {
+                    alerts.push({
+                        severity: 'low',
+                        badge: `+₹3,800/yr Yield`,
+                        icon: 'fa-coins text-emerald-500',
+                        title: `Idle Cash Drag: ${formatINR(savingsAsset.value)} in 3% Savings Account`,
+                        desc: `Shift ₹90,000 from low-yield savings into an instant-redemption Liquid / Arbitrage Fund (7.2% tax-efficient yield) while keeping ₹1,00,000 for T+0 UPI liquidity.`,
+                        actionLabel: `Sweep ₹90,000 to Liquid Fund`,
+                        actionFn: `optimizeIdleCash()`
+                    });
+                }
+            }
+
+            // Update count badges
+            document.getElementById('nav-alert-count').textContent = alerts.length;
+            document.getElementById('active-alerts-pill').textContent = `${alerts.length} Actionable ${alerts.length === 1 ? 'Item' : 'Items'}`;
+
+            const container = document.getElementById('agent-alerts-list');
+            if (alerts.length === 0) {
+                container.innerHTML = `
+                    <div class="p-6 rounded-xl bg-emerald-500/5 border border-emerald-500/20 text-center">
+                        <i class="fa-solid fa-circle-check text-2xl text-emerald-500 mb-2"></i>
+                        <h3 class="font-semibold text-sm">All Financial Guardrails Optimal!</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">All cards are under 30% utilization, subscription leaks are paused, and idle cash is deployed.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = alerts.map(a => `
+                <div class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-700/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                    <div class="space-y-1">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid ${a.icon}"></i>
+                            <span class="font-semibold text-sm">${a.title}</span>
+                            <span class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300">${a.badge}</span>
+                        </div>
+                        <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">${a.desc}</p>
+                    </div>
+                    <button onclick="${a.actionFn}" class="shrink-0 px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium shadow-sm transition whitespace-nowrap">
+                        ${a.actionLabel}
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // --- AGENT ALERT ACTIONS ---
+        function prepayCardToSafeZone(cardId, prepayAmt) {
+            const card = state.cards.find(c => c.id === cardId);
+            if (!card) return;
+            card.balance = Math.max(0, card.balance - prepayAmt);
+            // Deduct from liquid savings account to keep balance sheet accurate
+            const savings = state.assets.find(a => a.id === 'ast-1');
+            if (savings && savings.value >= prepayAmt) {
+                savings.value -= prepayAmt;
+            }
+            showToast(`Prepaid ${formatINR(prepayAmt)} to ${card.name}. Utilization is now ${(card.balance / card.limit * 100).toFixed(1)}%!`);
+            renderAll();
+        }
+
+        function applyLimitEnhancement(cardId, newLimit) {
+            const card = state.cards.find(c => c.id === cardId);
+            if (!card) return;
+            card.limit = newLimit;
+            card.limitBumpEligible = false;
+            showToast(`${card.name} credit limit updated to ${formatINR(newLimit)}! Aggregate utilization dropped.`);
+            renderAll();
+        }
+
+        function optimizeIdleCash() {
+            const savings = state.assets.find(a => a.id === 'ast-1');
+            const fd = state.assets.find(a => a.id === 'ast-2');
+            if (savings && fd && savings.value >= 90000) {
+                savings.value -= 90000;
+                fd.value += 90000;
+                state.idleCashOptimized = true;
+                showToast('Swept ₹90,000 into High-Yield Liquid Sweep (+₹3,800/yr yield).');
+                renderAll();
+            }
+        }
+
+        // --- COMPONENT 2: CASHFLOW & TRANSACTIONS ---
+        function renderCashflowSection(m) {
+            const inc = state.monthlyIncome;
+            const pFixed = Math.min(100, (m.fixedBurn / inc) * 100);
+            const pSubs = Math.min(100, (m.activeSubsBurn / inc) * 100);
+            const pVar = Math.min(100, (state.variableSpend / inc) * 100);
+            const pSurplus = Math.max(0, (m.monthlySurplus / inc) * 100);
+
+            document.getElementById('flow-summary-label').textContent = `${formatINR(m.totalOutflow)} Outflow / ${formatINR(m.monthlySurplus)} Surplus`;
+            document.getElementById('flow-fixed-val').textContent = formatINR(m.fixedBurn);
+            document.getElementById('flow-subs-val').textContent = formatINR(m.activeSubsBurn);
+            document.getElementById('flow-var-val').textContent = formatINR(state.variableSpend);
+            document.getElementById('flow-surplus-val').textContent = formatINR(m.monthlySurplus);
+
+            document.getElementById('cashflow-bar').innerHTML = `
+                <div style="width:${pFixed}%" class="bg-blue-500 h-full first:rounded-l-full" title="Fixed & EMIs"></div>
+                <div style="width:${pSubs}%" class="bg-purple-500 h-full" title="Subscriptions"></div>
+                <div style="width:${pVar}%" class="bg-amber-500 h-full" title="Variable Lifestyle"></div>
+                <div style="width:${pSurplus}%" class="bg-emerald-500 h-full last:rounded-r-full" title="Investable Surplus"></div>
+            `;
+
+            // Render Recent Transactions with Routing Audit
+            const txList = document.getElementById('recent-tx-list');
+            txList.innerHTML = state.transactions.map(t => {
+                const card = state.cards.find(c => c.id === t.cardId);
+                return `
+                    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between gap-2 text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-7 h-7 rounded-lg ${t.optimal ? 'bg-emerald-500/10 text-emerald-500' : 'bg-amber-500/10 text-amber-500'} flex items-center justify-center shrink-0">
+                                <i class="fa-solid ${t.optimal ? 'fa-check' : 'fa-triangle-exclamation'}"></i>
+                            </span>
+                            <div>
+                                <div class="font-medium">${t.desc}</div>
+                                <div class="text-[11px] text-slate-400">${t.date} • Swiped <span class="text-slate-600 dark:text-slate-300">${card ? card.name : 'Card'}</span></div>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-mono font-semibold">${formatINR(t.amount)}</div>
+                            ${t.optimal
+                                ? `<div class="text-[10px] font-mono text-emerald-500">+${formatINR(t.rewardEarned)} reward</div>`
+                                : `<div class="text-[10px] font-mono text-amber-500">Missed ${formatINR(t.missedReward)} (Use SBI CB)</div>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateIncome(val) {
+            const num = Number(val);
+            if (num >= 20000) {
+                state.monthlyIncome = num;
+                showToast(`Monthly Net Inflow updated to ${formatINR(num)}`);
+                renderAll();
+            }
+        }
+
+        // --- COMPONENT 3: SMART SPEND ROUTER ENGINE ---
+        function evaluateBestCardForSpend(category, amount) {
+            const ranked = state.cards.map(c => {
+                const rate = c.rates[category] !== undefined ? c.rates[category] : c.baseRate;
+                const rewardInr = Math.round((amount * rate) / 100);
+                const newBalance = c.balance + amount;
+                const newUtil = (newBalance / c.limit) * 100;
+
+                // Calculate Interest-Free Float Days left
+                let daysToNextBill = c.billDay - state.currentDayOfMonth;
+                if (daysToNextBill <= 0) daysToNextBill += 30;
+                const floatDays = daysToNextBill + 18; // ~18 grace days after bill generation
+
+                // Penalize score if swipe pushes card over 30% utilization ceiling
+                const utilPenalty = newUtil > 30 ? 4.5 : 0;
+                const compositeScore = rate - utilPenalty + (floatDays * 0.02);
+
+                return {
+                    card: c,
+                    rate,
+                    rewardInr,
+                    newUtil,
+                    floatDays,
+                    compositeScore
+                };
+            }).sort((a, b) => b.compositeScore - a.compositeScore);
+
+            return ranked;
+        }
+
+        function runQuickRouter() {
+            const cat = document.getElementById('quick-route-cat').value;
+            const amt = Number(document.getElementById('quick-route-amt').value) || 0;
+            const ranked = evaluateBestCardForSpend(cat, amt);
+            const best = ranked[0];
+            const runnerUp = ranked[1];
+
+            const resEl = document.getElementById('quick-route-result');
+            resEl.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div>
+                        <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold">Optimal Card</span>
+                        <div class="text-sm font-bold mt-1">${best.card.name}</div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-base font-bold font-mono text-emerald-400">+${formatINR(best.rewardInr)} (${best.rate}%)</div>
+                        <div class="text-[11px] text-slate-300">${best.floatDays} Days Interest-Free Float</div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-slate-300 pt-2 border-t border-white/10">
+                    <span>Post-Swipe Util: <strong class="${best.newUtil > 30 ? 'text-amber-400' : 'text-emerald-400'} font-mono">${best.newUtil.toFixed(1)}%</strong></span>
+                    <span>2nd Best: ${runnerUp.card.name} (${runnerUp.rate}%)</span>
+                </div>
+            `;
+        }
+
+        // --- COMPONENT 4: OVERVIEW CARD RADAR & DETAILED CARDS TAB ---
+        function renderOverviewCardRadar() {
+            const container = document.getElementById('overview-cards-bars');
+            container.innerHTML = state.cards.map(c => {
+                const util = (c.balance / c.limit) * 100;
+                const barColor = util > 30 ? 'bg-amber-500' : 'bg-emerald-500';
+                const daysToBill = c.billDay >= state.currentDayOfMonth ? (c.billDay - state.currentDayOfMonth) : (30 - state.currentDayOfMonth + c.billDay);
+
+                return `
+                    <div class="space-y-1.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="font-medium">${c.name}</span>
+                                <span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-mono">Bill in ${daysToBill}d</span>
+                            </div>
+                            <div class="font-mono">
+                                <span class="font-semibold">${formatINR(c.balance)}</span>
+                                <span class="text-slate-400"> / ${(c.limit / 100000).toFixed(1)}L</span>
+                                <span class="ml-1.5 font-semibold ${util > 30 ? 'text-amber-500' : 'text-emerald-500'}">(${util.toFixed(1)}%)</span>
+                            </div>
+                        </div>
+                        <div class="relative w-full h-2.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                            <!-- 30% CIBIL Safe Zone Marker Line -->
+                            <div style="left: 30%" class="absolute top-0 bottom-0 w-0.5 bg-rose-500/70 z-10" title="30% Safe Ceiling"></div>
+                            <div style="width: ${Math.min(100, util)}%" class="${barColor} h-full rounded-full transition-all duration-500"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render 30-Day Billing & Cashflow Radar
+            const calEl = document.getElementById('upcoming-calendar-list');
+            if (calEl) {
+                const events = [
+                    { day: 10, title: 'Axis Atlas Statement Generates', meta: 'Target <30% Util before bill', type: 'bill', badgeCls: 'bg-amber-500/10 text-amber-500' },
+                    { day: 10, title: 'Adobe Creative Cloud Auto-Debit', meta: formatINR(4200) + ' on HDFC Regalia', type: 'sub', badgeCls: 'bg-purple-500/10 text-purple-500' },
+                    { day: 11, title: 'ACT Fibernet & Airtel Postpaid', meta: formatINR(1699) + ' on Airtel Axis (25% CB)', type: 'sub', badgeCls: 'bg-emerald-500/10 text-emerald-500' },
+                    { day: 12, title: 'Airtel Axis Statement Generates', meta: 'Unbilled: ' + formatINR(state.cards[2].balance), type: 'bill', badgeCls: 'bg-indigo-500/10 text-indigo-500' },
+                    { day: 15, title: 'Vehicle Loan + MacBook EMIs', meta: 'Auto-debit ' + formatINR(18500), type: 'emi', badgeCls: 'bg-blue-500/10 text-blue-500' }
+                ];
+                calEl.innerHTML = events.map(ev => `
+                    <div class="p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200/60 dark:border-slate-800 flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-9 h-9 rounded-lg bg-slate-200/70 dark:bg-slate-800 font-mono font-bold flex flex-col items-center justify-center leading-none">
+                                <span class="text-[9px] text-slate-400 uppercase">Nov</span>
+                                <span>${ev.day}</span>
+                            </span>
+                            <div>
+                                <div class="font-medium">${ev.title}</div>
+                                <div class="text-[11px] text-slate-400">${ev.meta}</div>
+                            </div>
+                        </div>
+                        <span class="text-[10px] font-mono px-2 py-0.5 rounded-full ${ev.badgeCls}">In ${ev.day - state.currentDayOfMonth}d</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function renderDetailedCardsTab(m) {
+            document.getElementById('sim-cibil-score').textContent = m.simulatedCibil;
+            const peakEl = document.getElementById('sim-peak-util');
+            peakEl.textContent = `${m.peakCardUtil.toFixed(1)}%`;
+            peakEl.className = `text-xl font-bold font-mono mt-0.5 ${m.peakCardUtil > 30 ? 'text-amber-500' : 'text-emerald-500'}`;
+
+            // Update CIBIL factor diagnostic badge dynamically
+            const factorDesc = document.getElementById('factor-util-desc');
+            const factorBadge = document.getElementById('factor-util-badge');
+            if (factorDesc && factorBadge) {
+                factorDesc.textContent = `Aggregate ${m.aggUtilization.toFixed(1)}% • Peak Card ${m.peakCardUtil.toFixed(1)}%`;
+                if (m.peakCardUtil <= 30) {
+                    factorBadge.textContent = 'Optimal (<30%)';
+                    factorBadge.className = 'px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-mono font-semibold';
+                } else {
+                    factorBadge.textContent = 'Action Req';
+                    factorBadge.className = 'px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-mono font-semibold';
+                }
+            }
+
+            const grid = document.getElementById('cards-detailed-grid');
+            grid.innerHTML = state.cards.map(c => {
+                const util = (c.balance / c.limit) * 100;
+                const daysToBill = c.billDay >= state.currentDayOfMonth ? (c.billDay - state.currentDayOfMonth) : (30 - state.currentDayOfMonth + c.billDay);
+
+                return `
+                    <div class="p-4 rounded-2xl bg-gradient-to-br ${c.color} text-white shadow-md flex flex-col justify-between space-y-4">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <span class="text-[10px] uppercase tracking-widest text-white/70">${c.network}</span>
+                                <h3 class="font-bold text-base">${c.name}</h3>
+                            </div>
+                            <span class="text-xs font-mono px-2 py-0.5 rounded-full ${util > 30 ? 'bg-amber-500/30 text-amber-200 border border-amber-400/40' : 'bg-emerald-500/20 text-emerald-200 border border-emerald-400/30'}">
+                                ${util.toFixed(1)}% Util
+                            </span>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <div class="flex justify-between text-xs text-white/80 font-mono">
+                                <span>Unbilled: ${formatINR(c.balance)}</span>
+                                <span>Limit: ${formatINR(c.limit)}</span>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-black/30 overflow-hidden">
+                                <div style="width:${Math.min(100, util)}%" class="h-full ${util > 30 ? 'bg-amber-400' : 'bg-emerald-400'}"></div>
+                            </div>
+                        </div>
+
+                        <div class="text-[11px] text-white/80 bg-black/20 p-2.5 rounded-xl">
+                            <div class="font-semibold text-white mb-0.5">Best Routing:</div>
+                            <div>${c.bestFor}</div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-1 text-xs">
+                            <span class="text-white/75 font-mono">Statement: ${c.billDay}th (${daysToBill}d left)</span>
+                            ${c.balance > 0 ? `
+                                <button onclick="prepayCardToSafeZone('${c.id}', ${Math.min(c.balance, Math.max(5000, Math.round(c.balance - c.limit * 0.25)))})"
+                                    class="px-2.5 py-1 rounded-lg bg-white/15 hover:bg-white/25 text-white font-medium transition">
+                                    Pay ₹${Math.min(c.balance, Math.max(5000, Math.round(c.balance - c.limit * 0.25))).toLocaleString('en-IN')}
+                                </button>
+                            ` : `<span class="text-emerald-300">Zero Balance</span>`}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Reward Points Vault & Annual Fee Waiver Tracker
+            const vaultGrid = document.getElementById('rewards-vault-grid');
+            if (vaultGrid) {
+                let totalVaultInr = 0;
+                vaultGrid.innerHTML = state.cards.map(c => {
+                    const inrValue = Math.round(c.rewardUnits * c.pointValueInr);
+                    totalVaultInr += inrValue;
+                    const milestonePct = Math.min(100, Math.round((c.annualSpendYtd / c.milestoneTarget) * 100));
+                    const remainingForWaiver = Math.max(0, c.milestoneTarget - c.annualSpendYtd);
+
+                    return `
+                        <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 flex flex-col justify-between space-y-3 text-xs">
+                            <div class="flex items-start justify-between">
+                                <div>
+                                    <div class="font-semibold text-sm">${c.name}</div>
+                                    <div class="text-[11px] text-slate-400">${c.rewardPointsName}</div>
+                                </div>
+                                <div class="text-right font-mono">
+                                    <div class="font-bold text-sm text-emerald-500">${formatINR(inrValue)}</div>
+                                    <div class="text-[10px] text-slate-400">${c.rewardUnits.toLocaleString('en-IN')} pts</div>
+                                </div>
+                            </div>
+
+                            <div class="space-y-1">
+                                <div class="flex justify-between text-[11px]">
+                                    <span class="text-slate-500 dark:text-slate-400">${c.milestoneLabel}</span>
+                                    <span class="font-mono font-semibold">${milestonePct}%</span>
+                                </div>
+                                <div class="w-full h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
+                                    <div style="width:${milestonePct}%" class="h-full bg-indigo-500 rounded-full"></div>
+                                </div>
+                                <div class="flex items-center justify-between pt-1">
+                                    <span class="text-[10px] text-slate-400">${remainingForWaiver > 0 ? `${formatINR(remainingForWaiver)} more for waiver` : 'Milestone Unlocked!'}</span>
+                                    ${c.rewardUnits > 0 ? `
+                                        <button onclick="redeemCardPoints('${c.id}')" class="text-[11px] text-indigo-600 dark:text-indigo-400 hover:underline font-medium">
+                                            Redeem ${formatINR(inrValue)} →
+                                        </button>
+                                    ` : `<span class="text-[10px] text-emerald-500 font-medium">Redeemed</span>`}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                document.getElementById('vault-total-inr').textContent = formatINR(totalVaultInr);
+            }
+
+            // Render Limit Enhancement Tracker
+            const bumpList = document.getElementById('limit-bump-list');
+            bumpList.innerHTML = state.cards.map(c => {
+                const nextLimit = Math.round(c.limit * 1.4);
+                return `
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                        <div>
+                            <div class="font-medium">${c.name}</div>
+                            <div class="text-[11px] text-slate-400">Current: ${formatINR(c.limit)} • Tenure: ${c.tenureMonths} mos</div>
+                        </div>
+                        ${c.limitBumpEligible ? `
+                            <button onclick="applyLimitEnhancement('${c.id}', ${nextLimit})" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium">
+                                Bump to ${(nextLimit / 100000).toFixed(1)}L
+                            </button>
+                        ` : `
+                            <span class="text-[11px] font-mono text-emerald-500">Optimal Limit</span>
+                        `}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function redeemCardPoints(cardId) {
+            const card = state.cards.find(c => c.id === cardId);
+            if (!card || card.rewardUnits <= 0) return;
+            const inrVal = Math.round(card.rewardUnits * card.pointValueInr);
+            card.rewardUnits = 0;
+            card.balance = Math.max(0, card.balance - inrVal);
+            showToast(`Redeemed ${formatINR(inrVal)} from ${card.name} Vault toward statement credit / partner miles!`);
+            renderAll();
+        }
+
+        // --- RECURRING COMMITMENTS LEDGER ---
+        function escapeCommitmentText(value) {
+            return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
+        function commitmentMonthlyAmount(item) {
+            const amount = Number(item.amount) || 0;
+            return ({ 'Monthly': amount, 'Weekly': amount * 52 / 12, 'Fortnightly': amount * 26 / 12, 'Quarterly': amount / 3, 'Half-yearly': amount / 6, 'Yearly': amount / 12, 'One-time': 0 }[item.frequency] ?? amount);
+        }
+
+        function renderCommitments() {
+            const filter = document.getElementById('commitment-filter')?.value || 'all';
+            const active = state.commitments.filter(c => c.active);
+            const groups = { living:0, insurance:0, debt:0, investment:0 };
+            active.forEach(c => groups[c.type] = (groups[c.type] || 0) + commitmentMonthlyAmount(c));
+            const summary = document.getElementById('commitment-summary');
+            if (!summary) return;
+            summary.innerHTML = [
+                ['Living + insurance', groups.living + groups.insurance, 'bg-blue-500/10 text-blue-600 dark:text-blue-400'],
+                ['Debt payments', groups.debt, 'bg-rose-500/10 text-rose-600 dark:text-rose-400'],
+                ['Investments', groups.investment, 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'],
+                ['All cash commitments', Object.values(groups).reduce((a,b)=>a+b,0), 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400']
+            ].map(([label, amount, cls]) => `<div class="p-3 rounded-xl ${cls}"><div class="text-[10px]">${label}</div><div class="font-mono font-bold text-sm mt-0.5">${formatINR(amount)} / mo</div></div>`).join('');
+            const rows = state.commitments.filter(c => filter === 'all' || c.type === filter).map(c => {
+                const typeLabel = ({living:'Living cost',insurance:'Insurance',debt:'Debt payment',investment:'Investment'})[c.type] || c.type;
+                const typeStyle = c.type === 'investment' ? 'text-emerald-600 dark:text-emerald-400' : c.type === 'debt' ? 'text-rose-600 dark:text-rose-400' : 'text-slate-600 dark:text-slate-300';
+                const status = c.active ? 'Active' : 'Paused';
+                return `<tr class="${c.active?'':'opacity-50'}"><td><div class="font-medium">${escapeCommitmentText(c.name)}</div><div class="text-[10px] ${typeStyle}">${typeLabel}${c.note?` · ${escapeCommitmentText(c.note)}`:''}</div></td><td class="font-mono">${formatINR(c.amount)}<div class="text-[10px] text-slate-400">${escapeCommitmentText(c.frequency)}</div></td><td class="font-mono">${formatINR(commitmentMonthlyAmount(c))}</td><td>${c.lastPaid || '—'}</td><td>${c.nextDue || '—'}${c.endDate?`<div class="text-[10px] text-slate-400">Ends ${c.endDate}</div>`:''}</td><td>${escapeCommitmentText(c.account || 'Unspecified')}<div class="text-[10px] text-slate-400">${c.autopay?'Auto-pay on':'Manual'} · ${status}</div></td><td><button onclick="toggleCommitment('${c.id}')" class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-700 text-[10px]">${c.active?'Pause':'Resume'}</button></td></tr>`;
+            }).join('');
+            document.getElementById('commitment-table').innerHTML = rows ? `<table class="min-w-full text-xs text-left"><thead class="text-[10px] uppercase text-slate-400 bg-slate-50 dark:bg-slate-800/60"><tr><th class="px-3 py-2">Commitment</th><th class="px-3 py-2">Actual bill</th><th class="px-3 py-2">Monthly equivalent</th><th class="px-3 py-2">Last paid</th><th class="px-3 py-2">Next due / end date</th><th class="px-3 py-2">Payment account</th><th class="px-3 py-2">Status</th></tr></thead><tbody class="divide-y divide-slate-200 dark:divide-slate-800">${rows}</tbody></table>` : '<div class="p-5 text-center text-xs text-slate-400">No commitments in this category yet.</div>';
+        }
+
+        function openCommitmentModal() {
+            document.getElementById('commitment-modal').classList.remove('hidden');
+        }
+
+        function closeCommitmentModal() {
+            document.getElementById('commitment-modal').classList.add('hidden');
+        }
+
+        function saveCommitment() {
+            const name = document.getElementById('commitment-name').value.trim();
+            const amount = Number(document.getElementById('commitment-amount').value);
+            if (!name || amount <= 0) return;
+            state.commitments.unshift({
+                id:'rc-' + Date.now(), name, amount,
+                type:document.getElementById('commitment-type').value,
+                frequency:document.getElementById('commitment-frequency').value,
+                lastPaid:document.getElementById('commitment-last-paid').value,
+                nextDue:document.getElementById('commitment-next-due').value,
+                endDate:document.getElementById('commitment-end-date').value,
+                account:document.getElementById('commitment-account').value.trim(),
+                autopay:document.getElementById('commitment-autopay').checked,
+                active:true,
+                note:document.getElementById('commitment-note').value.trim()
+            });
+            closeCommitmentModal();
+            document.getElementById('commitment-form').reset();
+            persistCommitments();
+            renderCommitments();
+            showToast('Recurring commitment added');
+        }
+
+        function toggleCommitment(commitmentId) {
+            const item = state.commitments.find(c => c.id === commitmentId);
+            if (!item) return;
+            item.active = !item.active;
+            persistCommitments();
+            renderCommitments();
+        }
+
+        // --- COMPONENT 5: SUBSCRIPTIONS & EMIS ---
+        function renderSubscriptionsAndEmis(m) {
+            document.getElementById('subs-monthly-burn').textContent = `${formatINR(m.activeSubsBurn)} / mo`;
+            document.getElementById('subs-annual-burn').textContent = `${formatINR(m.activeSubsBurn * 12)} / yr`;
+
+            const activeCountEl = document.getElementById('mandate-active-count');
+            const leakValEl = document.getElementById('mandate-leak-val');
+            if (activeCountEl && leakValEl) {
+                const activeSubs = state.subscriptions.filter(s => s.active);
+                const leakyTotal = activeSubs.filter(s => (s.cost / Math.max(1, s.usesPerMonth)) > 500).reduce((acc, s) => acc + s.cost * 12, 0);
+                activeCountEl.textContent = `${activeSubs.length} Mandates`;
+                leakValEl.textContent = `${formatINR(leakyTotal)} / yr`;
+            }
+
+            const subContainer = document.getElementById('subscriptions-list');
+            subContainer.innerHTML = state.subscriptions.map(s => {
+                const cpu = Math.round(s.cost / Math.max(1, s.usesPerMonth));
+                const card = state.cards.find(c => c.id === s.cardId);
+                let verdict = { label: 'High Utility', cls: 'bg-emerald-500/10 text-emerald-500' };
+                if (cpu > 500) verdict = { label: 'Leak — Cancel/Pause', cls: 'bg-rose-500/10 text-rose-500' };
+                else if (cpu > 140) verdict = { label: 'Moderate Value', cls: 'bg-amber-500/10 text-amber-500' };
+
+                return `
+                    <div class="p-3.5 rounded-xl ${s.active ? 'bg-slate-50 dark:bg-slate-800/50' : 'bg-slate-100/50 dark:bg-slate-900 opacity-60'} border border-slate-200/70 dark:border-slate-700/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2">
+                                <span class="font-semibold text-sm ${!s.active ? 'line-through' : ''}">${s.name}</span>
+                                <span class="text-[10px] font-medium px-2 py-0.5 rounded-full ${verdict.cls}">${verdict.label}</span>
+                            </div>
+                            <div class="text-xs text-slate-500 dark:text-slate-400 flex flex-wrap items-center gap-1.5">
+                                <span>Billed on <strong class="text-slate-700 dark:text-slate-300">${card ? card.name : 'Card'}</strong></span>
+                                <span>•</span>
+                                <span>Uses/mo:</span>
+                                <button onclick="adjustSubUsage('${s.id}', -1)" class="w-5 h-5 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold">-</button>
+                                <span class="font-mono font-semibold">${s.usesPerMonth}</span>
+                                <button onclick="adjustSubUsage('${s.id}', 1)" class="w-5 h-5 rounded bg-slate-200 dark:bg-slate-700 text-xs font-bold">+</button>
+                                <span>(<span class="font-mono">${formatINR(cpu)}/use</span>) • Renews ${s.renewalDay}th</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3 self-end sm:self-center">
+                            <div class="text-right font-mono">
+                                <div class="text-sm font-bold">${formatINR(s.cost)}<span class="text-[10px] font-normal text-slate-400">/mo</span></div>
+                            </div>
+                            <button onclick="toggleSubscription('${s.id}')" class="px-3 py-1.5 rounded-lg text-xs font-medium transition ${s.active ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'}">
+                                ${s.active ? 'Pause' : 'Resume'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render EMIs
+            const emiContainer = document.getElementById('emi-list');
+            emiContainer.innerHTML = state.emis.map(e => `
+                <div class="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 flex items-center justify-between">
+                    <div>
+                        <div class="font-semibold text-sm">${e.name}</div>
+                        <div class="text-xs text-slate-400 mt-0.5">Principal Left: <span class="font-mono text-slate-600 dark:text-slate-300">${formatINR(e.outstandingPrincipal)}</span> • ${e.remainingMonths} mos left</div>
+                    </div>
+                    <div class="text-right font-mono">
+                        <div class="text-sm font-bold">${formatINR(e.monthlyEmi)}/mo</div>
+                        <div class="text-[10px] ${e.rate > 0 ? 'text-amber-500' : 'text-emerald-500'}">${e.rate > 0 ? e.rate + '% Interest' : '0% No-Cost'}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleSubscription(subId) {
+            const sub = state.subscriptions.find(s => s.id === subId);
+            if (!sub) return;
+            sub.active = !sub.active;
+            showToast(sub.active ? `Resumed ${sub.name}` : `Paused ${sub.name}! Monthly surplus increased by ${formatINR(sub.cost)}/mo.`);
+            renderAll();
+        }
+
+        function updateEmiSimulator(extraPerMonth) {
+            const extra = Number(extraPerMonth);
+            document.getElementById('prepay-slider-val').textContent = `+${formatINR(extra)} / mo`;
+            const interestSaved = Math.round(extra * 2.96);
+            const monthsSaved = (extra / 910).toFixed(1);
+            document.getElementById('emi-interest-saved').textContent = formatINR(interestSaved);
+            document.getElementById('emi-months-saved').textContent = `${monthsSaved} Months`;
+        }
+
+        // --- COMPONENT 6: BALANCE SHEET & NET WORTH ---
+        function renderBalanceSheetTab(m) {
+            const classColors = {
+                'Liquid Cash': 'bg-blue-500',
+                'Equities & Mutual Funds': 'bg-emerald-500',
+                'Retirement & Fixed Income': 'bg-indigo-500',
+                'Gold & Alternatives': 'bg-amber-500'
+            };
+
+            // Group totals by class
+            const groups = {};
+            state.assets.forEach(a => {
+                groups[a.category] = (groups[a.category] || 0) + a.value;
+            });
+
+            const barEl = document.getElementById('asset-allocation-bar');
+            const legendEl = document.getElementById('asset-allocation-legend');
+
+            barEl.innerHTML = Object.entries(groups).map(([cat, val]) => {
+                const pct = ((val / m.totalAssets) * 100).toFixed(1);
+                return `<div style="width:${pct}%" class="${classColors[cat] || 'bg-slate-500'} h-full" title="${cat}: ${pct}%"></div>`;
+            }).join('');
+
+            legendEl.innerHTML = Object.entries(groups).map(([cat, val]) => {
+                const pct = ((val / m.totalAssets) * 100).toFixed(1);
+                return `
+                    <div class="flex items-center gap-1.5">
+                        <span class="w-2.5 h-2.5 rounded-full ${classColors[cat] || 'bg-slate-500'}"></span>
+                        <span class="text-slate-500 dark:text-slate-400">${cat}:</span>
+                        <span class="font-mono font-semibold">${pct}%</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Assets List
+            const assetsList = document.getElementById('assets-ledger-list');
+            assetsList.innerHTML = state.assets.map(a => {
+                const pct = ((a.value / m.totalAssets) * 100).toFixed(1);
+                return `
+                    <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-2.5 h-8 rounded-full ${classColors[a.category] || 'bg-indigo-500'}"></span>
+                            <div>
+                                <div class="font-medium text-sm">${a.name}</div>
+                                <div class="text-xs text-slate-400">${a.category} • ${pct}% of Assets</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono font-semibold text-sm">${formatINR(a.value)}</span>
+                            <button onclick="quickBumpAsset('${a.id}', 25000)" class="px-2 py-1 rounded bg-slate-200 dark:bg-slate-700 hover:bg-emerald-500 hover:text-white text-[11px] font-mono transition" title="Simulate +₹25k SIP/Addition">
+                                +25k
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            // Render Liabilities List
+            document.getElementById('total-liabilities-badge').textContent = formatINR(m.totalLiabilities);
+            const liabList = document.getElementById('liabilities-ledger-list');
+            const cardLiabs = state.cards.filter(c => c.balance > 0).map(c => ({
+                name: `${c.name} (Unbilled Statement)`,
+                type: `Credit Card • Due ${c.dueDay}th`,
+                val: c.balance
+            }));
+            const emiLiabs = state.emis.map(e => ({
+                name: e.name,
+                type: `Loan Principal • ${e.remainingMonths} EMIs left`,
+                val: e.outstandingPrincipal
+            }));
+
+            liabList.innerHTML = [...cardLiabs, ...emiLiabs].map(l => `
+                <div class="p-3 rounded-xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/70 dark:border-slate-700/60 flex items-center justify-between text-xs">
+                    <div>
+                        <div class="font-medium text-sm">${l.name}</div>
+                        <div class="text-slate-400">${l.type}</div>
+                    </div>
+                    <div class="font-mono font-semibold text-rose-500">${formatINR(l.val)}</div>
+                </div>
+            `).join('');
+
+            // Solvency Ratios
+            const solvency = m.totalLiabilities > 0 ? (m.totalAssets / m.totalLiabilities).toFixed(1) : '99';
+            const investedShare = (((m.totalAssets - m.liquidAssets) / m.totalAssets) * 100).toFixed(1);
+            document.getElementById('ratio-solvency').textContent = `${solvency}x Covered`;
+            document.getElementById('ratio-invested').textContent = `${investedShare}%`;
+
+            // 5-Year Net Worth Compounding Trajectory
+            const cagrEl = document.getElementById('cagr-select');
+            const projTotalEl = document.getElementById('proj-5yr-total');
+            const projSipEl = document.getElementById('proj-monthly-sip');
+            const projBarsEl = document.getElementById('projection-bars');
+
+            if (cagrEl && projTotalEl && projBarsEl) {
+                const annualRate = Number(cagrEl.value) || 0.12;
+                const monthlyRate = annualRate / 12;
+                const sip = m.monthlySurplus;
+                projSipEl.textContent = `${formatINR(sip)} / mo`;
+
+                const milestones = [];
+                for (let yr = 1; yr <= 5; yr++) {
+                    const months = yr * 12;
+                    const compoundedBase = m.netWorth * Math.pow(1 + annualRate, yr);
+                    const compoundedSip = monthlyRate > 0 ? sip * ((Math.pow(1 + monthlyRate, months) - 1) / monthlyRate) : sip * months;
+                    milestones.push({
+                        year: 2026 + yr,
+                        label: `Year ${yr} (${2026 + yr})`,
+                        value: Math.round(compoundedBase + compoundedSip)
+                    });
+                }
+
+                const maxVal = milestones[milestones.length - 1].value;
+                projTotalEl.textContent = formatINR(maxVal);
+
+                projBarsEl.innerHTML = milestones.map(ms => {
+                    const widthPct = Math.max(12, Math.round((ms.value / maxVal) * 100));
+                    return `
+                        <div class="space-y-1 text-xs">
+                            <div class="flex justify-between font-mono">
+                                <span class="text-slate-500 dark:text-slate-400">${ms.label}</span>
+                                <span class="font-semibold">${formatINR(ms.value)}</span>
+                            </div>
+                            <div class="w-full h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+                                <div style="width:${widthPct}%" class="h-full bg-gradient-to-r from-indigo-500 to-emerald-500 rounded-full"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function adjustSubUsage(subId, delta) {
+            const sub = state.subscriptions.find(s => s.id === subId);
+            if (!sub) return;
+            sub.usesPerMonth = Math.max(1, sub.usesPerMonth + delta);
+            renderAll();
+        }
+
+        function openSubModal() {
+            const select = document.getElementById('sub-card');
+            select.innerHTML = state.cards.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('sub-modal').classList.remove('hidden');
+        }
+
+        function closeSubModal() {
+            document.getElementById('sub-modal').classList.add('hidden');
+        }
+
+        function submitNewSubscription() {
+            const name = document.getElementById('sub-name').value.trim() || 'Digital Subscription';
+            const cost = Number(document.getElementById('sub-cost').value) || 499;
+            const usesPerMonth = Math.max(1, Number(document.getElementById('sub-uses').value) || 5);
+            const renewalDay = Math.min(28, Math.max(1, Number(document.getElementById('sub-day').value) || 15));
+            const cardId = document.getElementById('sub-card').value;
+
+            state.subscriptions.push({
+                id: 'sub-' + Date.now(),
+                name,
+                cost,
+                usesPerMonth,
+                cardId,
+                renewalDay,
+                active: true,
+                category: 'online'
+            });
+
+            closeSubModal();
+            document.getElementById('sub-name').value = '';
+            showToast(`Added ${name} (${formatINR(cost)}/mo) to Subscriptions Audit`);
+            renderAll();
+        }
+
+        function quickBumpAsset(assetId, delta) {
+            const a = state.assets.find(x => x.id === assetId);
+            if (!a) return;
+            a.value += delta;
+            showToast(`Added ${formatINR(delta)} to ${a.name}. Net Worth updated!`);
+            renderAll();
+        }
+
+        // --- MODALS & FORM HANDLERS ---
+        function openExpenseModal() {
+            const select = document.getElementById('exp-card');
+            select.innerHTML = state.cards.map(c => `<option value="${c.id}">${c.name} (Avail: ${formatINR(c.limit - c.balance)})</option>`).join('');
+            previewModalCardAdvice();
+            document.getElementById('expense-modal').classList.remove('hidden');
+        }
+
+        function closeExpenseModal() {
+            document.getElementById('expense-modal').classList.add('hidden');
+        }
+
+        function previewModalCardAdvice() {
+            const cat = document.getElementById('exp-cat').value;
+            const amt = Number(document.getElementById('exp-amt').value) || 0;
+            const ranked = evaluateBestCardForSpend(cat, amt);
+            const best = ranked[0];
+            // Auto-select recommended card
+            document.getElementById('exp-card').value = best.card.id;
+            document.getElementById('modal-routing-advice').innerHTML = `
+                <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>
+                <strong>Agent Auto-Selected ${best.card.name}:</strong> Earns <strong>${best.rate}% (${formatINR(best.rewardInr)})</strong> with ${best.floatDays} days interest-free credit. Post-swipe utilization: ${best.newUtil.toFixed(1)}%.
+            `;
+        }
+
+        function submitNewExpense() {
+            const desc = document.getElementById('exp-desc').value.trim() || 'Merchant Purchase';
+            const cat = document.getElementById('exp-cat').value;
+            const amt = Number(document.getElementById('exp-amt').value) || 0;
+            const cardId = document.getElementById('exp-card').value;
+
+            if (amt <= 0) return;
+
+            const ranked = evaluateBestCardForSpend(cat, amt);
+            const bestCardId = ranked[0].card.id;
+            const chosenObj = ranked.find(r => r.card.id === cardId) || ranked[0];
+            const isOptimal = cardId === bestCardId || chosenObj.rate === ranked[0].rate;
+
+            // Update card balance & variable spend
+            const card = state.cards.find(c => c.id === cardId);
+            if (card) card.balance += amt;
+            state.variableSpend += amt;
+
+            state.transactions.unshift({
+                id: 'tx-' + Date.now(),
+                desc,
+                category: cat,
+                amount: amt,
+                cardId,
+                date: '07 Nov',
+                optimal: isOptimal,
+                rewardEarned: chosenObj.rewardInr,
+                missedReward: Math.max(0, ranked[0].rewardInr - chosenObj.rewardInr)
+            });
+
+            closeExpenseModal();
+            document.getElementById('exp-desc').value = '';
+            showToast(`Logged ${formatINR(amt)} on ${card.name} (+${formatINR(chosenObj.rewardInr)} rewards)`);
+            renderAll();
+        }
+
+        function openAssetModal() {
+            document.getElementById('asset-modal').classList.remove('hidden');
+        }
+
+        function closeAssetModal() {
+            document.getElementById('asset-modal').classList.add('hidden');
+        }
+
+        function submitNewAsset() {
+            const name = document.getElementById('asset-name').value.trim() || 'New Investment Holding';
+            const category = document.getElementById('asset-class').value;
+            const val = Number(document.getElementById('asset-val').value) || 0;
+            if (val <= 0) return;
+
+            state.assets.push({
+                id: 'ast-' + Date.now(),
+                name,
+                category,
+                value: val
+            });
+            closeAssetModal();
+            document.getElementById('asset-name').value = '';
+            showToast(`Added ${name} (${formatINR(val)}) to Balance Sheet`);
+            renderAll();
+        }
+
+        // --- TAB NAVIGATION & THEME TOGGLE ---
+        function switchTab(tabKey) {
+            const tabs = ['overview', 'cards', 'subscriptions', 'balancesheet', 'planning'];
+            tabs.forEach(t => {
+                const view = document.getElementById('view-' + t);
+                const btn = document.getElementById('tab-' + t);
+                const mobBtn = document.getElementById('mob-tab-' + t);
+                if (t === tabKey) {
+                    view.classList.remove('hidden');
+                    if (btn) btn.classList.add('active');
+                    if (mobBtn) mobBtn.classList.add('active');
+                } else {
+                    view.classList.add('hidden');
+                    if (btn) btn.classList.remove('active');
+                    if (mobBtn) mobBtn.classList.remove('active');
+                }
+            });
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.className = 'fa-solid fa-moon text-sm';
+            } else {
+                html.classList.add('dark');
+                icon.className = 'fa-solid fa-sun text-sm';
+            }
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            renderAll();
+        });
+    </script>
+</body>
+</html>
